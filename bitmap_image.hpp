@@ -109,8 +109,7 @@ public:
      height_(0),
      row_increment_(0),
      channel_mode_(bgr_mode)
-   {
-   }
+   {}
 
    bitmap_image(const std::string& _filename)
    : file_name_(_filename),
@@ -151,9 +150,9 @@ public:
       std::copy(image.data_, image.data_ + image.length_, data_);
    }
 
-   ~bitmap_image()
+  ~bitmap_image()
    {
-     delete [] data_;
+      delete [] data_;
    }
 
    bitmap_image& operator=(const bitmap_image& image)
@@ -250,12 +249,12 @@ public:
       if ((x_offset + source_image.width_) > width_)   { return false; }
       if ((y_offset + source_image.height_) > height_) { return false; }
 
-      for(unsigned int y = 0; y < source_image.height_; ++y)
+      for (unsigned int y = 0; y < source_image.height_; ++y)
       {
-         unsigned char* it1           = row(y + y_offset) + x_offset * bytes_per_pixel_;
-         const unsigned char* it2     = source_image.row(y);
-         const unsigned char* it2_end = it2 + source_image.width_ * bytes_per_pixel_;
-         std::copy(it2,it2_end,it1);
+         unsigned char* itr1           = row(y + y_offset) + x_offset * bytes_per_pixel_;
+         const unsigned char* itr2     = source_image.row(y);
+         const unsigned char* itr2_end = itr2 + source_image.width_ * bytes_per_pixel_;
+         std::copy(itr2,itr2_end,itr1);
       }
       return true;
    }
@@ -275,12 +274,12 @@ public:
          dest_image.setwidth_height(width,height);
       }
 
-      for(unsigned int r = 0; r < height; ++r)
+      for (unsigned int r = 0; r < height; ++r)
       {
-         unsigned char* it1     = row(r + y) + x * bytes_per_pixel_;
-         unsigned char* it1_end = it1 + (width * bytes_per_pixel_);
-         unsigned char* it2     = dest_image.row(r);
-         std::copy(it1,it1_end,it2);
+         unsigned char* itr1     = row(r + y) + x * bytes_per_pixel_;
+         unsigned char* itr1_end = itr1 + (width * bytes_per_pixel_);
+         unsigned char* itr2     = dest_image.row(r);
+         std::copy(itr1,itr1_end,itr2);
       }
       return true;
    }
@@ -294,11 +293,11 @@ public:
       if ((x + width) > width_)   { return false; }
       if ((y + height) > height_) { return false; }
 
-      for(unsigned int r = 0; r < height; ++r)
+      for (unsigned int r = 0; r < height; ++r)
       {
-         unsigned char* it     = row(r + y) + x * bytes_per_pixel_;
-         unsigned char* it_end = it + (width * bytes_per_pixel_);
-         std::fill(it,it_end,value);
+         unsigned char* itr     = row(r + y) + x * bytes_per_pixel_;
+         unsigned char* itr_end = itr + (width * bytes_per_pixel_);
+         std::fill(itr,itr_end,value);
       }
       return true;
    }
@@ -313,15 +312,15 @@ public:
       if ((x + width) > width_)   { return false; }
       if ((y + height) > height_) { return false; }
 
-      for(unsigned int r = 0; r < height; ++r)
+      for (unsigned int r = 0; r < height; ++r)
       {
-         unsigned char* it     = row(r + y) + x * bytes_per_pixel_ + offset(color);
-         unsigned char* it_end = it + (width * bytes_per_pixel_);
+         unsigned char* itr     = row(r + y) + x * bytes_per_pixel_ + offset(color);
+         unsigned char* itr_end = itr + (width * bytes_per_pixel_);
 
-         while(it != it_end)
+         while (itr != itr_end)
          {
-            *it  = value;
-             it += bytes_per_pixel_;
+            *itr  = value;
+             itr += bytes_per_pixel_;
          }
       }
       return true;
@@ -338,16 +337,16 @@ public:
       if ((x + width) > width_)   { return false; }
       if ((y + height) > height_) { return false; }
 
-      for(unsigned int r = 0; r < height; ++r)
+      for (unsigned int r = 0; r < height; ++r)
       {
-         unsigned char* it     = row(r + y) + x * bytes_per_pixel_;
-         unsigned char* it_end = it + (width * bytes_per_pixel_);
+         unsigned char* itr     = row(r + y) + x * bytes_per_pixel_;
+         unsigned char* itr_end = itr + (width * bytes_per_pixel_);
 
-         while(it != it_end)
+         while (itr != itr_end)
          {
-            *(it++)  = blue;
-            *(it++)  = green;
-            *(it++)  = red;
+            *(itr++) = blue;
+            *(itr++) = green;
+            *(itr++) = red;
          }
       }
       return true;
@@ -390,7 +389,8 @@ public:
    void save_image(const std::string& file_name)
    {
       std::ofstream stream(file_name.c_str(),std::ios::binary);
-      if(!stream)
+
+      if (!stream)
       {
          std::cout << "bitmap_image::save_image(): Error - Could not open file "  << file_name << " for writing!" << std::endl;
          return;
@@ -431,47 +431,47 @@ public:
       stream.close();
    }
 
-   inline void set_all_ith_bits_low(const unsigned int bit_index)
+   inline void set_all_ith_bits_low(const unsigned int bitr_index)
    {
-      unsigned char mask = static_cast<unsigned char>(~(1 << bit_index));
-      for(unsigned char* it = data_; it != data_ + length_; ++it) { *it &= mask; }
+      unsigned char mask = static_cast<unsigned char>(~(1 << bitr_index));
+      for (unsigned char* itr = data_; itr != data_ + length_; ++itr) { *itr &= mask; }
    }
 
-   inline void set_all_ith_bits_high(const unsigned int bit_index)
+   inline void set_all_ith_bits_high(const unsigned int bitr_index)
    {
-      unsigned char mask = static_cast<unsigned char>(1 << bit_index);
-      for(unsigned char* it = data_; it != data_ + length_; ++it) { *it |= mask; }
+      unsigned char mask = static_cast<unsigned char>(1 << bitr_index);
+      for (unsigned char* itr = data_; itr != data_ + length_; ++itr) { *itr |= mask; }
    }
 
    inline void set_all_ith_channels(const unsigned int& channel, const unsigned char& value)
    {
-      for(unsigned char* it = (data_ + channel); it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + channel); itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         *it = value;
+         *itr = value;
       }
    }
 
    inline void set_channel(const color_plane color,const unsigned char& value)
    {
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         *it = value;
+         *itr = value;
       }
    }
 
    inline void ror_channel(const color_plane color, const unsigned int& ror)
    {
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         *it = static_cast<unsigned char>(((*it) >> ror) | ((*it) << (8 - ror)));
+         *itr = static_cast<unsigned char>(((*itr) >> ror) | ((*itr) << (8 - ror)));
       }
    }
 
    inline void set_all_channels(const unsigned char& value)
    {
-      for(unsigned char* it = data_; it < (data_ + length_); )
+      for (unsigned char* itr = data_; itr < (data_ + length_); )
       {
-         *(it++) = value;
+         *(itr++) = value;
       }
    }
 
@@ -479,22 +479,22 @@ public:
                                 const unsigned char& g_value,
                                 const unsigned char& b_value)
    {
-      for(unsigned char* it = (data_ + 0); it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + 0); itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         *(it + 0) = b_value;
-         *(it + 1) = g_value;
-         *(it + 2) = r_value;
+         *(itr + 0) = b_value;
+         *(itr + 1) = g_value;
+         *(itr + 2) = r_value;
       }
    }
 
    inline void invert_color_planes()
    {
-      for(unsigned char* it = data_; it < (data_ + length_); *it = ~(*it), ++it);
+      for (unsigned char* itr = data_; itr < (data_ + length_); *itr = ~(*itr), ++itr);
    }
 
    inline void add_to_color_plane(const color_plane color,const unsigned char& value)
    {
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); (*it) += value, it += bytes_per_pixel_);
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); (*itr) += value, itr += bytes_per_pixel_);
    }
 
    inline void convert_to_grayscale()
@@ -510,19 +510,22 @@ public:
          b_scaler = tmp;
       }
 
-      for(unsigned char* it = data_; it < (data_ + length_);)
+      for (unsigned char* itr = data_; itr < (data_ + length_);)
       {
          unsigned char gray_value = static_cast<unsigned char>(
-         (r_scaler * (*(it + 2))) +
-         (g_scaler * (*(it + 1))) +
-         (b_scaler * (*(it + 0))) );
-         *(it++) = gray_value;
-         *(it++) = gray_value;
-         *(it++) = gray_value;
+         (r_scaler * (*(itr + 2))) +
+         (g_scaler * (*(itr + 1))) +
+         (b_scaler * (*(itr + 0))) );
+         *(itr++) = gray_value;
+         *(itr++) = gray_value;
+         *(itr++) = gray_value;
       }
    }
 
-   const unsigned char* data() { return data_; }
+   inline const unsigned char* data()
+   {
+      return data_;
+   }
 
    inline void bgr_to_rgb()
    {
@@ -542,73 +545,74 @@ public:
       }
    }
 
-   void reverse()
+   inline void reverse()
    {
-      unsigned char* it1 = data_;
-      unsigned char* it2 = (data_ + length_) - bytes_per_pixel_;
+      unsigned char* itr1 = data_;
+      unsigned char* itr2 = (data_ + length_) - bytes_per_pixel_;
 
-      while(it1 < it2)
+      while (itr1 < itr2)
       {
-         for(std::size_t i = 0; i < bytes_per_pixel_; ++i)
+         for (std::size_t i = 0; i < bytes_per_pixel_; ++i)
          {
-            unsigned char* cit1 = it1 + i;
-            unsigned char* cit2 = it2 + i;
-            unsigned char tmp = *cit1;
-            *cit1 = *cit2;
-            *cit2 = tmp;
+            unsigned char* citr1 = itr1 + i;
+            unsigned char* citr2 = itr2 + i;
+            unsigned char tmp = *citr1;
+            *citr1 = *citr2;
+            *citr2 = tmp;
          }
-         it1 += bytes_per_pixel_;
-         it2 -= bytes_per_pixel_;
+         itr1 += bytes_per_pixel_;
+         itr2 -= bytes_per_pixel_;
       }
    }
 
-   void horizontal_flip()
+   inline void horizontal_flip()
    {
-      for(unsigned int y = 0; y < height_; ++y)
+      for (unsigned int y = 0; y < height_; ++y)
       {
-         unsigned char* it1 =  row(y);
-         unsigned char* it2 = it1 + row_increment_ - bytes_per_pixel_;
-         while(it1 < it2)
+         unsigned char* itr1 = row(y);
+         unsigned char* itr2 = itr1 + row_increment_ - bytes_per_pixel_;
+
+         while (itr1 < itr2)
          {
-            for(unsigned int i = 0; i < bytes_per_pixel_; ++i)
+            for (unsigned int i = 0; i < bytes_per_pixel_; ++i)
             {
-               unsigned char* p1 = (it1 + i);
-               unsigned char* p2 = (it2 + i);
+               unsigned char* p1 = (itr1 + i);
+               unsigned char* p2 = (itr2 + i);
                unsigned char tmp = *p1;
                *p1 = *p2;
                *p2 = tmp;
             }
-            it1 += bytes_per_pixel_;
-            it2 -= bytes_per_pixel_;
+            itr1 += bytes_per_pixel_;
+            itr2 -= bytes_per_pixel_;
          }
       }
    }
 
-   void vertical_flip()
+   inline void vertical_flip()
    {
-      for(unsigned int y = 0; y < (height_ / 2); ++y)
+      for (unsigned int y = 0; y < (height_ / 2); ++y)
       {
-         unsigned char* it1 = row(y);
-         unsigned char* it2 = row(height_ - y - 1);
+         unsigned char* itr1 = row(y);
+         unsigned char* itr2 = row(height_ - y - 1);
 
-         for(std::size_t x = 0; x < row_increment_; ++x)
+         for (std::size_t x = 0; x < row_increment_; ++x)
          {
-            unsigned char tmp = *(it1 + x);
-            *(it1 + x) = *(it2 + x);
-            *(it2 + x) = tmp;
+            unsigned char tmp = *(itr1 + x);
+            *(itr1 + x) = *(itr2 + x);
+            *(itr2 + x) = tmp;
          }
       }
    }
 
-   void export_color_plane(const color_plane color, unsigned char* image)
+   inline void export_color_plane(const color_plane color, unsigned char* image)
    {
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); ++image, it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); ++image, itr += bytes_per_pixel_)
       {
-         (*image) = (*it);
+         (*image) = (*itr);
       }
    }
 
-   void export_color_plane(const color_plane color, bitmap_image& image)
+   inline void export_color_plane(const color_plane color, bitmap_image& image)
    {
       if ((width_ != image.width_) || (height_ != image.height_))
       {
@@ -616,198 +620,198 @@ public:
       }
 
       image.clear();
-      unsigned char* it1     = (data_ + offset(color));
-      unsigned char* it1_end = (data_ + length_);
-      unsigned char* it2     = (image.data_ + offset(color));
+      unsigned char* itr1     = (data_ + offset(color));
+      unsigned char* itr1_end = (data_ + length_);
+      unsigned char* itr2     = (image.data_ + offset(color));
 
-      while(it1 < it1_end)
+      while (itr1 < itr1_end)
       {
-         (*it2) = (*it1);
-         it1 += bytes_per_pixel_;
-         it2 += bytes_per_pixel_;
+         (*itr2) = (*itr1);
+         itr1 += bytes_per_pixel_;
+         itr2 += bytes_per_pixel_;
       }
    }
 
-   void export_response_image(const color_plane color, double* response_image)
+   inline void export_response_image(const color_plane color, double* response_image)
    {
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); ++response_image, it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); ++response_image, itr += bytes_per_pixel_)
       {
-         (*response_image) = (1.0 * (*it)) / 256.0;
+         (*response_image) = (1.0 * (*itr)) / 256.0;
       }
    }
 
-   void export_gray_scale_response_image(double* response_image)
+   inline void export_gray_scale_response_image(double* response_image)
    {
-      for(unsigned char* it = data_; it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = data_; itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         unsigned char gray_value = static_cast<unsigned char>((0.299 * (*(it + 2))) +
-                                                               (0.587 * (*(it + 1))) +
-                                                               (0.114 * (*(it + 0))));
+         unsigned char gray_value = static_cast<unsigned char>((0.299 * (*(itr + 2))) +
+                                                               (0.587 * (*(itr + 1))) +
+                                                               (0.114 * (*(itr + 0))));
          (*response_image) = (1.0 * gray_value) / 256.0;
       }
    }
 
-   void export_rgb(double* red, double* green, double* blue) const
+   inline void export_rgb(double* red, double* green, double* blue) const
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         (*blue)  = (1.0 * (*(it++))) / 256.0;
-         (*green) = (1.0 * (*(it++))) / 256.0;
-         (*red)   = (1.0 * (*(it++))) / 256.0;
+         (*blue)  = (1.0 * (*(itr++))) / 256.0;
+         (*green) = (1.0 * (*(itr++))) / 256.0;
+         (*red)   = (1.0 * (*(itr++))) / 256.0;
       }
    }
 
-   void export_rgb(float* red, float* green, float* blue) const
+   inline void export_rgb(float* red, float* green, float* blue) const
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         (*blue)  = (1.0f * (*(it++))) / 256.0f;
-         (*green) = (1.0f * (*(it++))) / 256.0f;
-         (*red)   = (1.0f * (*(it++))) / 256.0f;
+         (*blue)  = (1.0f * (*(itr++))) / 256.0f;
+         (*green) = (1.0f * (*(itr++))) / 256.0f;
+         (*red)   = (1.0f * (*(itr++))) / 256.0f;
       }
    }
 
-   void export_rgb(unsigned char* red, unsigned char* green, unsigned char* blue) const
+   inline void export_rgb(unsigned char* red, unsigned char* green, unsigned char* blue) const
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         (*blue)  = *(it++);
-         (*green) = *(it++);
-         (*red)   = *(it++);
+         (*blue)  = *(itr++);
+         (*green) = *(itr++);
+         (*red)   = *(itr++);
       }
    }
 
-   void export_ycbcr(double* y, double* cb, double* cr)
+   inline void export_ycbcr(double* y, double* cb, double* cr)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++y, ++cb, ++cr)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++y, ++cb, ++cr)
       {
-         double blue  = (1.0 * (*(it++)));
-         double green = (1.0 * (*(it++)));
-         double red   = (1.0 * (*(it++)));
+         double blue  = (1.0 * (*(itr++)));
+         double green = (1.0 * (*(itr++)));
+         double red   = (1.0 * (*(itr++)));
          ( *y) = clamp<double>( 16.0 + (1.0/256.0) * (  65.738 * red + 129.057 * green +  25.064 * blue),1.0,254);
          (*cb) = clamp<double>(128.0 + (1.0/256.0) * (- 37.945 * red -  74.494 * green + 112.439 * blue),1.0,254);
          (*cr) = clamp<double>(128.0 + (1.0/256.0) * ( 112.439 * red -  94.154 * green -  18.285 * blue),1.0,254);
       }
    }
 
-   void export_rgb_normal(double* red, double* green, double* blue) const
+   inline void export_rgb_normal(double* red, double* green, double* blue) const
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         (*blue)  = (1.0 * (*(it++)));
-         (*green) = (1.0 * (*(it++)));
-         (*red)   = (1.0 * (*(it++)));
+         (*blue)  = (1.0 * (*(itr++)));
+         (*green) = (1.0 * (*(itr++)));
+         (*red)   = (1.0 * (*(itr++)));
       }
    }
 
-   void export_rgb_normal(float* red, float* green, float* blue) const
+   inline void export_rgb_normal(float* red, float* green, float* blue) const
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         (*blue)  = (1.0f * (*(it++)));
-         (*green) = (1.0f * (*(it++)));
-         (*red)   = (1.0f * (*(it++)));
+         (*blue)  = (1.0f * (*(itr++)));
+         (*green) = (1.0f * (*(itr++)));
+         (*red)   = (1.0f * (*(itr++)));
       }
    }
 
-   void import_rgb(double* red, double* green, double* blue)
+   inline void import_rgb(double* red, double* green, double* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(256.0 * (*blue) );
-         *(it++) = static_cast<unsigned char>(256.0 * (*green));
-         *(it++) = static_cast<unsigned char>(256.0 * (*red)  );
+         *(itr++) = static_cast<unsigned char>(256.0 * (*blue) );
+         *(itr++) = static_cast<unsigned char>(256.0 * (*green));
+         *(itr++) = static_cast<unsigned char>(256.0 * (*red)  );
       }
    }
 
-   void import_rgb(float* red, float* green, float* blue)
+   inline void import_rgb(float* red, float* green, float* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(256.0f * (*blue) );
-         *(it++) = static_cast<unsigned char>(256.0f * (*green));
-         *(it++) = static_cast<unsigned char>(256.0f * (*red)  );
+         *(itr++) = static_cast<unsigned char>(256.0f * (*blue) );
+         *(itr++) = static_cast<unsigned char>(256.0f * (*green));
+         *(itr++) = static_cast<unsigned char>(256.0f * (*red)  );
       }
    }
 
-   void import_rgb(unsigned char* red, unsigned char* green, unsigned char* blue)
+   inline void import_rgb(unsigned char* red, unsigned char* green, unsigned char* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = (*blue );
-         *(it++) = (*green);
-         *(it++) = (*red  );
+         *(itr++) = (*blue );
+         *(itr++) = (*green);
+         *(itr++) = (*red  );
       }
    }
 
-   void import_ycbcr(double* y, double* cb, double* cr)
+   inline void import_ycbcr(double* y, double* cb, double* cr)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++y, ++cb, ++cr)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++y, ++cb, ++cr)
       {
          double y_  =  (*y);
          double cb_ = (*cb);
          double cr_ = (*cr);
-         *(it++) = static_cast<unsigned char>(clamp((298.082 * y_ + 516.412 * cb_                 ) / 256.000 - 276.836,0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp((298.082 * y_ - 100.291 * cb_ - 208.120 * cr_ ) / 256.000 + 135.576,0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp((298.082 * y_                 + 408.583 * cr_ ) / 256.000 - 222.921,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp((298.082 * y_ + 516.412 * cb_                 ) / 256.000 - 276.836,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp((298.082 * y_ - 100.291 * cb_ - 208.120 * cr_ ) / 256.000 + 135.576,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp((298.082 * y_                 + 408.583 * cr_ ) / 256.000 - 222.921,0.0,255.0));
       }
    }
 
-   void import_rgb_clamped(double* red, double* green, double* blue)
+   inline void import_rgb_clamped(double* red, double* green, double* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0 * (*blue) ,0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0 * (*green),0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0 * (*red)  ,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0 * (*blue) ,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0 * (*green),0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0 * (*red)  ,0.0,255.0));
       }
    }
 
-   void import_rgb_clamped(float* red, float* green, float* blue)
+   inline void import_rgb_clamped(float* red, float* green, float* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0f * (*blue) ,0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0f * (*green),0.0,255.0));
-         *(it++) = static_cast<unsigned char>(clamp<double>(256.0f * (*red)  ,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0f * (*blue) ,0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0f * (*green),0.0,255.0));
+         *(itr++) = static_cast<unsigned char>(clamp<double>(256.0f * (*red)  ,0.0,255.0));
       }
    }
 
-   void import_rgb_normal(double* red, double* green, double* blue)
+   inline void import_rgb_normal(double* red, double* green, double* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(*blue );
-         *(it++) = static_cast<unsigned char>(*green);
-         *(it++) = static_cast<unsigned char>(*red  );
+         *(itr++) = static_cast<unsigned char>(*blue );
+         *(itr++) = static_cast<unsigned char>(*green);
+         *(itr++) = static_cast<unsigned char>(*red  );
       }
    }
 
-   void import_rgb_normal(float* red, float* green, float* blue)
+   inline void import_rgb_normal(float* red, float* green, float* blue)
    {
       if (bgr_mode != channel_mode_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); ++red, ++green, ++blue)
+      for (unsigned char* itr = data_; itr < (data_ + length_); ++red, ++green, ++blue)
       {
-         *(it++) = static_cast<unsigned char>(*blue );
-         *(it++) = static_cast<unsigned char>(*green);
-         *(it++) = static_cast<unsigned char>(*red  );
+         *(itr++) = static_cast<unsigned char>(*blue );
+         *(itr++) = static_cast<unsigned char>(*green);
+         *(itr++) = static_cast<unsigned char>(*red  );
       }
    }
 
-   void subsample(bitmap_image& dest)
+   inline void subsample(bitmap_image& dest)
    {
       /*
          Half sub-sample of original image.
@@ -833,84 +837,85 @@ public:
          h = 1 + (height_ / 2);
          odd_height = true;
       }
+
       unsigned int horizontal_upper = (odd_width)  ? w - 1 : w;
       unsigned int vertical_upper   = (odd_height) ? h - 1 : h;
 
       dest.setwidth_height(w,h);
       dest.clear();
 
-            unsigned char* s_it[3];
-      const unsigned char*  it1[3];
-      const unsigned char*  it2[3];
+            unsigned char* s_itr[3];
+      const unsigned char*  itr1[3];
+      const unsigned char*  itr2[3];
 
-      s_it[0] = dest.data_ + 0;
-      s_it[1] = dest.data_ + 1;
-      s_it[2] = dest.data_ + 2;
+      s_itr[0] = dest.data_ + 0;
+      s_itr[1] = dest.data_ + 1;
+      s_itr[2] = dest.data_ + 2;
 
-      it1[0] = data_ + 0;
-      it1[1] = data_ + 1;
-      it1[2] = data_ + 2;
+      itr1[0] = data_ + 0;
+      itr1[1] = data_ + 1;
+      itr1[2] = data_ + 2;
 
-      it2[0] = data_ + row_increment_ + 0;
-      it2[1] = data_ + row_increment_ + 1;
-      it2[2] = data_ + row_increment_ + 2;
+      itr2[0] = data_ + row_increment_ + 0;
+      itr2[1] = data_ + row_increment_ + 1;
+      itr2[2] = data_ + row_increment_ + 2;
 
       unsigned int total = 0;
-      for(unsigned int j = 0; j < vertical_upper; ++j)
+      for (unsigned int j = 0; j < vertical_upper; ++j)
       {
          for (unsigned int i = 0; i < horizontal_upper; ++i)
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; s_it[k] += bytes_per_pixel_, ++k)
+            for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(it1[k]); it1[k] += bytes_per_pixel_;
-               total += *(it1[k]); it1[k] += bytes_per_pixel_;
-               total += *(it2[k]); it2[k] += bytes_per_pixel_;
-               total += *(it2[k]); it2[k] += bytes_per_pixel_;
-               *(s_it[k]) = static_cast<unsigned char>(total >> 2);
+               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
+               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
+               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               *(s_itr[k]) = static_cast<unsigned char>(total >> 2);
             }
          }
          if (odd_width)
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; s_it[k] += bytes_per_pixel_, ++k)
+            for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(it1[k]); it1[k] += bytes_per_pixel_;
-               total += *(it2[k]); it2[k] += bytes_per_pixel_;
-               *(s_it[k]) = static_cast<unsigned char>(total >> 1);
+               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
+               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               *(s_itr[k]) = static_cast<unsigned char>(total >> 1);
             }
          }
 
-         for(unsigned int k = 0; k < bytes_per_pixel_; it1[k] += row_increment_, ++k);
+         for (unsigned int k = 0; k < bytes_per_pixel_; itr1[k] += row_increment_, ++k);
 
          if (j != (vertical_upper - 1))
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; it2[k] += row_increment_, ++k);
+            for (unsigned int k = 0; k < bytes_per_pixel_; itr2[k] += row_increment_, ++k);
          }
       }
       if (odd_height)
       {
          for (unsigned int i = 0; i < horizontal_upper; ++i)
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; s_it[k] += bytes_per_pixel_, ++k)
+            for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(it1[k]); it1[k] += bytes_per_pixel_;
-               total += *(it2[k]); it2[k] += bytes_per_pixel_;
-               *(s_it[k]) = static_cast<unsigned char>(total >> 1);
+               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
+               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               *(s_itr[k]) = static_cast<unsigned char>(total >> 1);
             }
          }
          if (odd_width)
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; ++k)
+            for (unsigned int k = 0; k < bytes_per_pixel_; ++k)
             {
-               (*(s_it[k])) = *(it1[k]);
+               (*(s_itr[k])) = *(itr1[k]);
             }
          }
       }
    }
 
-   void upsample(bitmap_image& dest)
+   inline void upsample(bitmap_image& dest)
    {
       /*
          2x up-sample of original image.
@@ -919,44 +924,44 @@ public:
       dest.setwidth_height(2 * width_ ,2 * height_);
       dest.clear();
 
-      const unsigned char* s_it[3];
-            unsigned char*  it1[3];
-            unsigned char*  it2[3];
+      const unsigned char* s_itr[3];
+            unsigned char*  itr1[3];
+            unsigned char*  itr2[3];
 
-      s_it[0] = data_ + 0;
-      s_it[1] = data_ + 1;
-      s_it[2] = data_ + 2;
+      s_itr[0] = data_ + 0;
+      s_itr[1] = data_ + 1;
+      s_itr[2] = data_ + 2;
 
-      it1[0] = dest.data_ + 0;
-      it1[1] = dest.data_ + 1;
-      it1[2] = dest.data_ + 2;
+      itr1[0] = dest.data_ + 0;
+      itr1[1] = dest.data_ + 1;
+      itr1[2] = dest.data_ + 2;
 
-      it2[0] = dest.data_ + dest.row_increment_ + 0;
-      it2[1] = dest.data_ + dest.row_increment_ + 1;
-      it2[2] = dest.data_ + dest.row_increment_ + 2;
+      itr2[0] = dest.data_ + dest.row_increment_ + 0;
+      itr2[1] = dest.data_ + dest.row_increment_ + 1;
+      itr2[2] = dest.data_ + dest.row_increment_ + 2;
 
-      for(unsigned int j = 0; j < height_; ++j)
+      for (unsigned int j = 0; j < height_; ++j)
       {
          for (unsigned int i = 0; i < width_; ++i)
          {
-            for(unsigned int k = 0; k < bytes_per_pixel_; s_it[k] += bytes_per_pixel_, ++k)
+            for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
-               *(it1[k]) = *(s_it[k]); it1[k] += bytes_per_pixel_;
-               *(it1[k]) = *(s_it[k]); it1[k] += bytes_per_pixel_;
+               *(itr1[k]) = *(s_itr[k]); itr1[k] += bytes_per_pixel_;
+               *(itr1[k]) = *(s_itr[k]); itr1[k] += bytes_per_pixel_;
 
-               *(it2[k]) = *(s_it[k]); it2[k] += bytes_per_pixel_;
-               *(it2[k]) = *(s_it[k]); it2[k] += bytes_per_pixel_;
+               *(itr2[k]) = *(s_itr[k]); itr2[k] += bytes_per_pixel_;
+               *(itr2[k]) = *(s_itr[k]); itr2[k] += bytes_per_pixel_;
             }
          }
-         for(unsigned int k = 0; k < bytes_per_pixel_; ++k)
+         for (unsigned int k = 0; k < bytes_per_pixel_; ++k)
          {
-            it1[k] += dest.row_increment_;
-            it2[k] += dest.row_increment_;
+            itr1[k] += dest.row_increment_;
+            itr2[k] += dest.row_increment_;
          }
       }
    }
 
-   void alpha_blend(const double& alpha, const bitmap_image& image)
+   inline void alpha_blend(const double& alpha, const bitmap_image& image)
    {
       if ((image.width_ != width_) || (image.height_ != height_))
       {
@@ -968,38 +973,38 @@ public:
          return;
       }
 
-      unsigned char* it1     = data_;
-      unsigned char* it1_end = data_ + length_;
-      unsigned char* it2     = image.data_;
+      unsigned char* itr1     = data_;
+      unsigned char* itr1_end = data_ + length_;
+      unsigned char* itr2     = image.data_;
 
       double alpha_compliment = 1.0 - alpha;
 
-      while(it1 != it1_end)
+      while (itr1 != itr1_end)
       {
-         *(it1) = static_cast<unsigned char>((alpha * (*it2)) + (alpha_compliment * (*it1)));
-         *(it1++);
-         *(it2++);
+         *(itr1) = static_cast<unsigned char>((alpha * (*itr2)) + (alpha_compliment * (*itr1)));
+         *(itr1++);
+         *(itr2++);
       }
    }
 
-   double psnr(const bitmap_image& image)
+   inline double psnr(const bitmap_image& image)
    {
       if ((image.width_ != width_) || (image.height_ != height_))
       {
          return 0.0;
       }
 
-      unsigned char* it1 = data_;
-      unsigned char* it2 = image.data_;
+      unsigned char* itr1 = data_;
+      unsigned char* itr2 = image.data_;
 
       double mse = 0.0;
 
-      while (it1 != (data_ + length_))
+      while (itr1 != (data_ + length_))
       {
-         double v = (static_cast<double>(*it1) - static_cast<double>(*it2));
+         double v = (static_cast<double>(*itr1) - static_cast<double>(*itr2));
          mse += v * v;
-         ++it1;
-         ++it2;
+         ++itr1;
+         ++itr2;
       }
       if (mse <= 0.0000001)
       {
@@ -1012,7 +1017,7 @@ public:
       }
    }
 
-   double psnr(const unsigned int& x,
+   inline double psnr(const unsigned int& x,
                const unsigned int& y,
                const bitmap_image& image)
    {
@@ -1021,17 +1026,17 @@ public:
 
       double mse = 0.0;
 
-      for(unsigned int r = 0; r < image.height(); ++r)
+      for (unsigned int r = 0; r < image.height(); ++r)
       {
-         unsigned char* it1     = row(r + y) + x * bytes_per_pixel_;
-         unsigned char* it1_end = it1 + (image.width() * bytes_per_pixel_);
-         const unsigned char* it2     = image.row(r);
-         while(it1 != it1_end)
+         unsigned char* itr1       = row(r + y) + x * bytes_per_pixel_;
+         unsigned char* itr1_end   = itr1 + (image.width() * bytes_per_pixel_);
+         const unsigned char* itr2 = image.row(r);
+         while (itr1 != itr1_end)
          {
-            double v = (static_cast<double>(*it1) - static_cast<double>(*it2));
+            double v = (static_cast<double>(*itr1) - static_cast<double>(*itr2));
             mse += v * v;
-            ++it1;
-            ++it2;
+            ++itr1;
+            ++itr2;
          }
       }
       if (mse <= 0.0000001)
@@ -1045,25 +1050,25 @@ public:
       }
    }
 
-   void histogram(const color_plane color, double hist[256])
+   inline void histogram(const color_plane color, double hist[256])
    {
       std::fill(hist,hist + 256,0.0);
-      for(unsigned char* it = (data_ + offset(color)); it < (data_ + length_); it += bytes_per_pixel_)
+      for (unsigned char* itr = (data_ + offset(color)); itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         ++hist[(*it)];
+         ++hist[(*itr)];
       }
    }
 
-   void histogram_normalized(const color_plane color, double hist[256])
+   inline void histogram_normalized(const color_plane color, double hist[256])
    {
       histogram(color,hist);
-      double* h_it = hist;
+      double* h_itr = hist;
       const double* h_end = hist + 256;
       const double pixel_count = static_cast<double>(width_ * height_);
-      while(h_end != h_it) { *(h_it++) /= pixel_count; }
+      while (h_end != h_itr) { *(h_itr++) /= pixel_count; }
    }
 
-   unsigned int offset(const color_plane color)
+   inline unsigned int offset(const color_plane color)
    {
       switch(channel_mode_)
       {
@@ -1090,14 +1095,14 @@ public:
       }
    }
 
-   void incremental()
+   inline void incremental()
    {
       unsigned char current_color = 0;
-      for(unsigned char* it = data_; it < (data_ + length_);)
+      for (unsigned char* itr = data_; itr < (data_ + length_);)
       {
-         (*it++) = (current_color);
-         (*it++) = (current_color);
-         (*it++) = (current_color);
+         (*itr++) = (current_color);
+         (*itr++) = (current_color);
+         (*itr++) = (current_color);
          ++current_color;
       }
    }
@@ -1131,14 +1136,14 @@ private:
       read_bfh(stream,bfh);
       read_bih(stream,bih);
 
-      if(bfh.type != 19778)
+      if (bfh.type != 19778)
       {
          stream.close();
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid type value " << bfh.type << " expected 19778." << std::endl;
          return;
       }
 
-      if(bih.bit_count != 24)
+      if (bih.bit_count != 24)
       {
          stream.close();
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid bit depth " << bih.bit_count << " expected 24." << std::endl;
@@ -1165,14 +1170,14 @@ private:
       valid_ = true;
    }
 
-   void reverse_channels()
+   inline void reverse_channels()
    {
-      if(3 != bytes_per_pixel_) return;
-      for(unsigned char* it = data_; it < (data_ + length_); it += bytes_per_pixel_)
+      if (3 != bytes_per_pixel_) return;
+      for (unsigned char* itr = data_; itr < (data_ + length_); itr += bytes_per_pixel_)
       {
-         unsigned char tmp = *(it + 0);
-         *(it + 0) = *(it + 2);
-         *(it + 2) = tmp;
+         unsigned char tmp = *(itr + 0);
+         *(itr + 0) = *(itr + 2);
+         *(itr + 2) = tmp;
       }
    }
 
@@ -1198,8 +1203,6 @@ private:
    channel_mode   channel_mode_;
 };
 
-
-/* Utility Routines */
 inline bool big_endian()
 {
    unsigned int v = 0x01;
@@ -1213,8 +1216,10 @@ inline unsigned short flip(const unsigned short& v)
 
 inline unsigned int flip(const unsigned int& v)
 {
-   return (((v & 0xFF000000) >> 0x18) | ((v & 0x000000FF) << 0x18) |
-          ((v & 0x00FF0000) >> 0x08) | ((v & 0x0000FF00) << 0x08));
+   return (((v & 0xFF000000) >> 0x18) |
+           ((v & 0x000000FF) << 0x18) |
+           ((v & 0x00FF0000) >> 0x08) |
+           ((v & 0x0000FF00) << 0x08));
 }
 
 template<typename T>
@@ -1223,11 +1228,11 @@ inline void read_from_stream(std::ifstream& stream,T& t)
    stream.read(reinterpret_cast<char*>(&t),sizeof(T));
 }
 
-template<typename T> inline void write_to_stream(std::ofstream& stream,const T& t)
+template<typename T>
+inline void write_to_stream(std::ofstream& stream,const T& t)
 {
    stream.write(reinterpret_cast<const char*>(&t),sizeof(T));
 }
-
 
 inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
 {
@@ -1236,7 +1241,8 @@ inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
    read_from_stream(stream,bfh.reserved1);
    read_from_stream(stream,bfh.reserved2);
    read_from_stream(stream,bfh.off_bits);
-   if(big_endian())
+
+   if (big_endian())
    {
       flip(bfh.type);
       flip(bfh.size);
@@ -1248,7 +1254,7 @@ inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
 
 inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh)
 {
-   if(big_endian())
+   if (big_endian())
    {
       flip(bfh.type);
       flip(bfh.size);
@@ -1256,13 +1262,13 @@ inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh)
       flip(bfh.reserved2);
       flip(bfh.off_bits);
    }
+
    write_to_stream(stream,bfh.type);
    write_to_stream(stream,bfh.size);
    write_to_stream(stream,bfh.reserved1);
    write_to_stream(stream,bfh.reserved2);
    write_to_stream(stream,bfh.off_bits);
 }
-
 
 inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
 {
@@ -1277,7 +1283,7 @@ inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
    read_from_stream(stream,bih.y_pels_per_meter);
    read_from_stream(stream,bih.clr_used);
    read_from_stream(stream,bih.clr_important);
-   if(big_endian())
+   if (big_endian())
    {
       flip(bih.size);
       flip(bih.width);
@@ -1295,7 +1301,7 @@ inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
 
 inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih)
 {
-   if(big_endian())
+   if (big_endian())
    {
       flip(bih.size);
       flip(bih.width);
@@ -1399,40 +1405,42 @@ inline void subsample(const unsigned int& width,
 
    *dest = new double[w * h];
 
-   double* s_it = *dest;
-   const double* it1 = source;
-   const double* it2 = source + width;
+   double* s_itr = *dest;
+   const double* itr1 = source;
+   const double* itr2 = source + width;
 
-   for(unsigned int j = 0; j < vertical_upper; ++j)
+   for (unsigned int j = 0; j < vertical_upper; ++j)
    {
-      for (unsigned int i = 0; i < horizontal_upper; ++i, ++s_it)
+      for (unsigned int i = 0; i < horizontal_upper; ++i, ++s_itr)
       {
-          (*s_it)  = *(it1++);
-          (*s_it) += *(it1++);
-          (*s_it) += *(it2++);
-          (*s_it) += *(it2++);
-          (*s_it) /=  4.0;
+          (*s_itr)  = *(itr1++);
+          (*s_itr) += *(itr1++);
+          (*s_itr) += *(itr2++);
+          (*s_itr) += *(itr2++);
+          (*s_itr) /=  4.0;
       }
       if (odd_width)
       {
-         (*(s_it++)) = ( (*it1++) + (*it2++) ) / 2.0;
+         (*(s_itr++)) = ( (*itr1++) + (*itr2++) ) / 2.0;
       }
 
-      it1 += width;
+      itr1 += width;
       if (j != (vertical_upper -1))
       {
-         it2 += width;
+         itr2 += width;
       }
    }
    if (odd_height)
    {
-      for (unsigned int i = 0; i < horizontal_upper; ++i, ++s_it)
+      for (unsigned int i = 0; i < horizontal_upper; ++i, ++s_itr)
       {
-         (*s_it) = ( (*(it1++)) + (*(it1++))  ) / 2.0;
+         (*s_itr) += (*(itr1++));
+         (*s_itr) += (*(itr1++));
+         (*s_itr) /= 2.0;
       }
       if (odd_width)
       {
-         (*(s_it++)) = (*it1);
+         (*(s_itr++)) = (*itr1);
       }
    }
 }
@@ -1451,21 +1459,21 @@ inline void upsample(const unsigned int& width,
 
    *dest = new double[w * h];
 
-   const double* s_it = source;
-         double* it1 = *dest;
-         double* it2 = *dest + w;
+   const double* s_itr = source;
+         double* itr1  = *dest;
+         double* itr2  = *dest + w;
 
-   for(unsigned int j = 0; j < height; ++j)
+   for (unsigned int j = 0; j < height; ++j)
    {
-      for (unsigned int i = 0; i < width; ++i, ++s_it)
+      for (unsigned int i = 0; i < width; ++i, ++s_itr)
       {
-          *(it1++) = (*s_it);
-          *(it1++) = (*s_it);
-          *(it2++) = (*s_it);
-          *(it2++) = (*s_it);
+          *(itr1++) = (*s_itr);
+          *(itr1++) = (*s_itr);
+          *(itr2++) = (*s_itr);
+          *(itr2++) = (*s_itr);
       }
-      it1 += w;
-      it2 += w;
+      itr1 += w;
+      itr2 += w;
    }
 }
 
@@ -1483,12 +1491,12 @@ void checkered_pattern(const unsigned int x_width,
    bool setter_x = false;
    bool setter_y = true;
 
-   for(unsigned int y = 0; y < image.height(); ++y)
+   for (unsigned int y = 0; y < image.height(); ++y)
    {
       if (0 == (y % y_width)) setter_y = !setter_y;
 
       unsigned char* row = image.row(y) + image.offset(color);
-      for(unsigned int x = 0; x < image.width(); ++x, row += image.bytes_per_pixel())
+      for (unsigned int x = 0; x < image.width(); ++x, row += image.bytes_per_pixel())
       {
          if (0 == (x % x_width)) setter_x = !setter_x;
          if (setter_x && !setter_y)
@@ -1556,17 +1564,17 @@ double psnr_region(const unsigned int& x,     const unsigned int& y,
 
    double mse = 0.0;
 
-   for(unsigned int r = 0; r < height; ++r)
+   for (unsigned int r = 0; r < height; ++r)
    {
-      const unsigned char* it1       = image1.row(r + y) + x * image1.bytes_per_pixel();
-      const unsigned char* it1_end   = it1 + (width * image1.bytes_per_pixel());
-      const unsigned char* it2 = image2.row(r + y) + x * image2.bytes_per_pixel();
-      while(it1 != it1_end)
+      const unsigned char* itr1     = image1.row(r + y) + x * image1.bytes_per_pixel();
+      const unsigned char* itr1_end = itr1 + (width * image1.bytes_per_pixel());
+      const unsigned char* itr2     = image2.row(r + y) + x * image2.bytes_per_pixel();
+      while (itr1 != itr1_end)
       {
-         double v = (static_cast<double>(*it1) - static_cast<double>(*it2));
+         double v = (static_cast<double>(*itr1) - static_cast<double>(*itr2));
          mse += v * v;
-         ++it1;
-         ++it2;
+         ++itr1;
+         ++itr2;
       }
    }
    if (mse <= 0.0000001)
@@ -1663,7 +1671,7 @@ public:
       int dx    = abs(x2 - x1);
       int dy    = abs(y2 - y1);
 
-      if(dy > dx)
+      if (dy > dx)
       {
          steep = x1;  x1 = y1;  y1 = steep;  /* swap x1 and y1 */
          steep = dx;  dx = dy;  dy = steep;  /* swap dx and dy */
@@ -1673,14 +1681,14 @@ public:
 
       int e = 2 * dy - dx;
 
-      for(int i = 0; i < dx; ++i)
+      for (int i = 0; i < dx; ++i)
       {
-         if(steep)
+         if (steep)
             plot_pen_pixel(y1,x1);
          else
             plot_pen_pixel(x1,y1);
 
-         while(e >= 0)
+         while (e >= 0)
          {
             y1 += sy;
             e -= (dx << 1);
@@ -1698,7 +1706,7 @@ public:
          std::swap(x1,x2);
       }
 
-      for(int i = 0; i < (x2 - x1); ++i)
+      for (int i = 0; i < (x2 - x1); ++i)
       {
          plot_pen_pixel(x1 +  i,y);
       }
@@ -1711,7 +1719,7 @@ public:
          std::swap(y1,y2);
       }
 
-      for(int i = 0; i < (y2 - y1); ++i)
+      for (int i = 0; i < (y2 - y1); ++i)
       {
          plot_pen_pixel(x, y1 +  i);
       }
@@ -1801,7 +1809,7 @@ public:
       int x = 0;
       int d = (1 - radius) << 1;
 
-      while(radius >= 0)
+      while (radius >= 0)
       {
          plot_pen_pixel(centerx + x,centery + radius);
          plot_pen_pixel(centerx + x,centery - radius);

@@ -139,22 +139,22 @@ inline void test08()
    unsigned int w = image.width();
    unsigned int h = image.height();
 
-   if(!image.region(0,0, w / 2, h / 2,image1))
+   if (!image.region(0,0, w / 2, h / 2,image1))
    {
       std::cout << "ERROR: upper_left_image" << std::endl;
    }
 
-   if(!image.region((w - 1) / 2, 0, w / 2, h / 2,image2))
+   if (!image.region((w - 1) / 2, 0, w / 2, h / 2,image2))
    {
       std::cout << "ERROR: upper_right_image" << std::endl;
    }
 
-   if(!image.region(0,(h - 1) / 2, w / 2, h / 2,image3))
+   if (!image.region(0,(h - 1) / 2, w / 2, h / 2,image3))
    {
       std::cout << "ERROR: lower_left_image" << std::endl;
    }
 
-   if(!image.region((w - 1) / 2, (h - 1) / 2, w / 2, h / 2,image4))
+   if (!image.region((w - 1) / 2, (h - 1) / 2, w / 2, h / 2,image4))
    {
       std::cout << "ERROR: lower_right_image" << std::endl;
    }
@@ -169,9 +169,9 @@ inline void test09()
 {
    const unsigned int dim = 1000;
    bitmap_image image(dim,dim);
-   for(unsigned int x = 0; x < dim; ++x)
+   for (unsigned int x = 0; x < dim; ++x)
    {
-      for(unsigned int y = 0; y < dim; ++y)
+      for (unsigned int y = 0; y < dim; ++y)
       {
          rgb_store col = jet_colormap[(x + y) % dim];
          image.set_pixel(x,y,col.red,col.green,col.blue);
@@ -193,7 +193,7 @@ inline void test11()
    std::string file_name = "image.bmp";
    bitmap_image image("image.bmp");
 
-   for(unsigned int i = 0; i < 10; ++i)
+   for (unsigned int i = 0; i < 10; ++i)
    {
       image.add_to_color_plane(bitmap_image::red_plane,10);
       image.save_image(static_cast<char>(48 + i) + std::string("_red_inc_image.bmp"));
@@ -211,7 +211,7 @@ inline void test12()
 
    image.export_ycbcr(y,cb,cr);
 
-   for(unsigned int i = 0; i < image.pixel_count(); ++i)
+   for (unsigned int i = 0; i < image.pixel_count(); ++i)
    {
       cb[i] = cr[i] = 0.0;
    }
@@ -230,9 +230,9 @@ inline void test13()
 
    image.export_ycbcr(y,cb,cr);
 
-   for(unsigned int j = 0; j < 10; ++j)
+   for (unsigned int j = 0; j < 10; ++j)
    {
-      for(unsigned int i = 0; i < image.pixel_count(); ++i)
+      for (unsigned int i = 0; i < image.pixel_count(); ++i)
       {
          y[i] += 15.0;
       }
@@ -353,9 +353,9 @@ inline void test17()
                                    yarg_colormap
                                   };
 
-   for(unsigned int i = 0; i < image.width(); ++i)
+   for (unsigned int i = 0; i < image.width(); ++i)
    {
-      for(unsigned int j = 0; j < 9; ++j)
+      for (unsigned int j = 0; j < 9; ++j)
       {
          draw.pen_color(colormap[j][i].red,colormap[j][i].green,colormap[j][i].blue);
          draw.vertical_line_segment(j * 20, (j + 1) * 20, i);
