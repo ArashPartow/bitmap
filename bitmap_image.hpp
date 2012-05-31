@@ -226,6 +226,12 @@ public:
                         const unsigned char green,
                         const unsigned char blue)
    {
+      if(x < 0 || y < 0){
+        return;
+      }
+      if(x >= width_ || y >= height_){
+        return;
+      }
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 0)] = blue;
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 1)] = green;
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 2)] = red;
@@ -1477,7 +1483,7 @@ inline void upsample(const unsigned int& width,
    }
 }
 
-void checkered_pattern(const unsigned int x_width,
+inline void checkered_pattern(const unsigned int x_width,
                        const unsigned int y_width,
                        const unsigned char value,
                        const bitmap_image::color_plane color,
@@ -1507,7 +1513,7 @@ void checkered_pattern(const unsigned int x_width,
    }
 }
 
-void plasma(bitmap_image& image,
+inline void plasma(bitmap_image& image,
             const double& x,     const double& y,
             const double& width, const double& height,
             const double& c1,    const double& c2,
@@ -1549,7 +1555,7 @@ void plasma(bitmap_image& image,
    }
 }
 
-double psnr_region(const unsigned int& x,     const unsigned int& y,
+inline double psnr_region(const unsigned int& x,     const unsigned int& y,
                    const unsigned int& width, const unsigned int& height,
                    const bitmap_image& image1, const bitmap_image& image2)
 {
@@ -1588,7 +1594,7 @@ double psnr_region(const unsigned int& x,     const unsigned int& y,
    }
 }
 
-void hierarchical_psnr_r(const double& x,     const double& y,
+inline void hierarchical_psnr_r(const double& x,     const double& y,
                          const double& width, const double& height,
                          const bitmap_image& image1, bitmap_image& image2, const double& threshold,
                          const rgb_store colormap[])
@@ -1615,7 +1621,7 @@ void hierarchical_psnr_r(const double& x,     const double& y,
    }
 }
 
-void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
+inline void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
 {
    if ((image1.width() != image2.width()) ||
        (image1.height() != image2.height()))
