@@ -28,7 +28,8 @@
 #include <limits>
 #include <cmath>
 #include <cstdlib>
-
+#include <vector>
+#include <map>
 
 struct bitmap_file_header
 {
@@ -226,6 +227,12 @@ public:
                         const unsigned char green,
                         const unsigned char blue)
    {
+      if(x < 0 || y < 0){
+        return;
+      }
+      if(x >= width_ || y >= height_){
+        return;
+      }
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 0)] = blue;
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 1)] = green;
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 2)] = red;
@@ -1477,7 +1484,7 @@ inline void upsample(const unsigned int& width,
    }
 }
 
-void checkered_pattern(const unsigned int x_width,
+inline void checkered_pattern(const unsigned int x_width,
                        const unsigned int y_width,
                        const unsigned char value,
                        const bitmap_image::color_plane color,
@@ -1507,7 +1514,7 @@ void checkered_pattern(const unsigned int x_width,
    }
 }
 
-void plasma(bitmap_image& image,
+inline void plasma(bitmap_image& image,
             const double& x,     const double& y,
             const double& width, const double& height,
             const double& c1,    const double& c2,
@@ -1549,7 +1556,7 @@ void plasma(bitmap_image& image,
    }
 }
 
-double psnr_region(const unsigned int& x,     const unsigned int& y,
+inline double psnr_region(const unsigned int& x,     const unsigned int& y,
                    const unsigned int& width, const unsigned int& height,
                    const bitmap_image& image1, const bitmap_image& image2)
 {
@@ -1588,7 +1595,7 @@ double psnr_region(const unsigned int& x,     const unsigned int& y,
    }
 }
 
-void hierarchical_psnr_r(const double& x,     const double& y,
+inline void hierarchical_psnr_r(const double& x,     const double& y,
                          const double& width, const double& height,
                          const bitmap_image& image1, bitmap_image& image2, const double& threshold,
                          const rgb_store colormap[])
@@ -1615,7 +1622,7 @@ void hierarchical_psnr_r(const double& x,     const double& y,
    }
 }
 
-void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
+inline void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
 {
    if ((image1.width() != image2.width()) ||
        (image1.height() != image2.height()))
@@ -1628,6 +1635,52 @@ void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double t
       hierarchical_psnr_r(0,0, image1.width(), image1.height(),image1,image2,threshold,colormap);
    }
 }
+
+class bitmap_font {
+public:
+
+  inline bitmap_font(bitmap_image& bmp)
+    : m_bmp(bmp)
+  {
+  }
+
+  inline void setColor(unsigned char r, unsigned char g, unsigned char b){
+    m_r = r;
+    m_g = g;
+    m_b = b;
+  }
+
+  inline void drawString(int x, int y, std::string str){
+    for(size_t i = 0; i < str.size(); ++i){
+      int index = m_charToIndex[str[i]];
+      std::vector<int> x_points = m_x[index];
+      std::vector<int> y_points = m_y[index];
+
+      for(size_t j = 0; j < x_points.size(); ++j){
+        int curr_x = x_points[j] + x;
+        int curr_y = y_points[j] + y;
+        if(curr_x < 0 || curr_y < 0 || curr_x >= m_bmp.width() || curr_y >= m_bmp.height()){
+          continue;
+        }
+        m_bmp.red_channel(curr_x, curr_y, m_r);
+        m_bmp.green_channel(curr_x, curr_y, m_g);
+        m_bmp.blue_channel(curr_x, curr_y, m_b);
+      }
+      x += m_width;
+    }
+  }
+
+protected:
+  unsigned char m_r;
+  unsigned char m_g;
+  unsigned char m_b;
+  bitmap_image& m_bmp;
+
+  std::map<char, int> m_charToIndex;
+  std::vector<std::vector<int> > m_x;
+  std::vector<std::vector<int> > m_y;
+  int m_width;    
+};
 
 class image_drawer
 {
