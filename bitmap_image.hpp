@@ -18,6 +18,7 @@
 ***************************************************************************
 */
 
+
 #ifndef INCLUDE_BITMAP_IMAGE_HPP
 #define INCLUDE_BITMAP_IMAGE_HPP
 
@@ -29,60 +30,6 @@
 #include <cmath>
 #include <cstdlib>
 
-
-struct bitmap_file_header
-{
-   unsigned short type;
-   unsigned int   size;
-   unsigned short reserved1;
-   unsigned short reserved2;
-   unsigned int   off_bits;
-
-   unsigned int struct_size()
-   {
-      return sizeof(type)     +
-            sizeof(size)      +
-            sizeof(reserved1) +
-            sizeof(reserved2) +
-            sizeof(off_bits);
-   }
-};
-
-struct bitmap_information_header
-{
-   unsigned int   size;
-   unsigned int   width;
-   unsigned int   height;
-   unsigned short planes;
-   unsigned short bit_count;
-   unsigned int   compression;
-   unsigned int   size_image;
-   unsigned int   x_pels_per_meter;
-   unsigned int   y_pels_per_meter;
-   unsigned int   clr_used;
-   unsigned int   clr_important;
-
-   unsigned int struct_size()
-   {
-      return sizeof(size)             +
-             sizeof(width)            +
-             sizeof(height)           +
-             sizeof(planes)           +
-             sizeof(bit_count)        +
-             sizeof(compression)      +
-             sizeof(size_image)       +
-             sizeof(x_pels_per_meter) +
-             sizeof(y_pels_per_meter) +
-             sizeof(clr_used)         +
-             sizeof(clr_important);
-   }
-};
-
-
-inline void read_bih(std::ifstream& stream,bitmap_information_header& bih);
-inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh);
-inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih);
-inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh);
 
 class bitmap_image
 {
@@ -111,8 +58,8 @@ public:
      channel_mode_(bgr_mode)
    {}
 
-   bitmap_image(const std::string& _filename)
-   : file_name_(_filename),
+   bitmap_image(const std::string& filename)
+   : file_name_(filename),
      data_(0),
      bytes_per_pixel_(0),
      length_(0),
@@ -159,12 +106,12 @@ public:
    {
       if (this != &image)
       {
-         file_name_ = image.file_name_;
+         file_name_       = image.file_name_;
          bytes_per_pixel_ = image.bytes_per_pixel_;
-         width_ = image.width_;
-         height_ = image.height_;
-         row_increment_ = 0;
-         channel_mode_ = image.channel_mode_;
+         width_           = image.width_;
+         height_          = image.height_;
+         row_increment_   = 0;
+         channel_mode_    = image.channel_mode_;
          create_bitmap();
          std::copy(image.data_, image.data_ + image.length_, data_);
       }
@@ -222,9 +169,9 @@ public:
    }
 
    inline void set_pixel(const unsigned int x, const unsigned int y,
-                        const unsigned char red,
-                        const unsigned char green,
-                        const unsigned char blue)
+                         const unsigned char red,
+                         const unsigned char green,
+                         const unsigned char blue)
    {
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 0)] = blue;
       data_[(y * row_increment_) + (x * bytes_per_pixel_ + 1)] = green;
@@ -352,7 +299,6 @@ public:
       return true;
    }
 
-
    void reflective_image(bitmap_image& image)
    {
       image.setwidth_height(3 * width_, 3 * height_,true);
@@ -367,10 +313,25 @@ public:
       horizontal_flip();
    }
 
-   inline unsigned int width()  const { return width_;  }
-   inline unsigned int height() const { return height_; }
-   inline unsigned int bytes_per_pixel() const { return bytes_per_pixel_; }
-   inline unsigned int pixel_count() const { return width_ *  height_; }
+   inline unsigned int width()  const
+   {
+      return width_;
+   }
+
+   inline unsigned int height() const
+   {
+      return height_;
+   }
+
+   inline unsigned int bytes_per_pixel() const
+   {
+      return bytes_per_pixel_;
+   }
+
+   inline unsigned int pixel_count() const
+   {
+      return width_ *  height_;
+   }
 
    inline void setwidth_height(const unsigned int width,
                                const unsigned int height,
@@ -982,8 +943,8 @@ public:
       while (itr1 != itr1_end)
       {
          *(itr1) = static_cast<unsigned char>((alpha * (*itr2)) + (alpha_compliment * (*itr1)));
-         *(itr1++);
-         *(itr2++);
+         itr1++;
+         itr2++;
       }
    }
 
@@ -1109,6 +1070,179 @@ public:
 
 private:
 
+   struct bitmap_file_header
+   {
+      unsigned short type;
+      unsigned int   size;
+      unsigned short reserved1;
+      unsigned short reserved2;
+      unsigned int   off_bits;
+
+      unsigned int struct_size()
+      {
+         return sizeof(type)     +
+               sizeof(size)      +
+               sizeof(reserved1) +
+               sizeof(reserved2) +
+               sizeof(off_bits);
+      }
+   };
+
+   struct bitmap_information_header
+   {
+      unsigned int   size;
+      unsigned int   width;
+      unsigned int   height;
+      unsigned short planes;
+      unsigned short bit_count;
+      unsigned int   compression;
+      unsigned int   size_image;
+      unsigned int   x_pels_per_meter;
+      unsigned int   y_pels_per_meter;
+      unsigned int   clr_used;
+      unsigned int   clr_important;
+
+      unsigned int struct_size()
+      {
+         return sizeof(size)             +
+                sizeof(width)            +
+                sizeof(height)           +
+                sizeof(planes)           +
+                sizeof(bit_count)        +
+                sizeof(compression)      +
+                sizeof(size_image)       +
+                sizeof(x_pels_per_meter) +
+                sizeof(y_pels_per_meter) +
+                sizeof(clr_used)         +
+                sizeof(clr_important);
+      }
+   };
+
+   inline bool big_endian()
+   {
+      unsigned int v = 0x01;
+      return (1 != reinterpret_cast<char*>(&v)[0]);
+   }
+
+   inline unsigned short flip(const unsigned short& v)
+   {
+      return ((v >> 8) | (v << 8));
+   }
+
+   inline unsigned int flip(const unsigned int& v)
+   {
+      return (((v & 0xFF000000) >> 0x18) |
+              ((v & 0x000000FF) << 0x18) |
+              ((v & 0x00FF0000) >> 0x08) |
+              ((v & 0x0000FF00) << 0x08));
+   }
+
+   template<typename T>
+   inline void read_from_stream(std::ifstream& stream,T& t)
+   {
+      stream.read(reinterpret_cast<char*>(&t),sizeof(T));
+   }
+
+   template<typename T>
+   inline void write_to_stream(std::ofstream& stream,const T& t)
+   {
+      stream.write(reinterpret_cast<const char*>(&t),sizeof(T));
+   }
+
+   inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
+   {
+      read_from_stream(stream,bfh.type);
+      read_from_stream(stream,bfh.size);
+      read_from_stream(stream,bfh.reserved1);
+      read_from_stream(stream,bfh.reserved2);
+      read_from_stream(stream,bfh.off_bits);
+
+      if (big_endian())
+      {
+         flip(bfh.type);
+         flip(bfh.size);
+         flip(bfh.reserved1);
+         flip(bfh.reserved2);
+         flip(bfh.off_bits);
+      }
+   }
+
+   inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh)
+   {
+      if (big_endian())
+      {
+         flip(bfh.type);
+         flip(bfh.size);
+         flip(bfh.reserved1);
+         flip(bfh.reserved2);
+         flip(bfh.off_bits);
+      }
+
+      write_to_stream(stream,bfh.type);
+      write_to_stream(stream,bfh.size);
+      write_to_stream(stream,bfh.reserved1);
+      write_to_stream(stream,bfh.reserved2);
+      write_to_stream(stream,bfh.off_bits);
+   }
+
+   inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
+   {
+      read_from_stream(stream,bih.size);
+      read_from_stream(stream,bih.width);
+      read_from_stream(stream,bih.height);
+      read_from_stream(stream,bih.planes);
+      read_from_stream(stream,bih.bit_count);
+      read_from_stream(stream,bih.compression);
+      read_from_stream(stream,bih.size_image);
+      read_from_stream(stream,bih.x_pels_per_meter);
+      read_from_stream(stream,bih.y_pels_per_meter);
+      read_from_stream(stream,bih.clr_used);
+      read_from_stream(stream,bih.clr_important);
+      if (big_endian())
+      {
+         flip(bih.size);
+         flip(bih.width);
+         flip(bih.height);
+         flip(bih.planes);
+         flip(bih.bit_count);
+         flip(bih.compression);
+         flip(bih.size_image);
+         flip(bih.x_pels_per_meter);
+         flip(bih.y_pels_per_meter);
+         flip(bih.clr_used);
+         flip(bih.clr_important);
+      }
+   }
+
+   inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih)
+   {
+      if (big_endian())
+      {
+         flip(bih.size);
+         flip(bih.width);
+         flip(bih.height);
+         flip(bih.planes);
+         flip(bih.bit_count);
+         flip(bih.compression);
+         flip(bih.size_image);
+         flip(bih.x_pels_per_meter);
+         flip(bih.y_pels_per_meter);
+         flip(bih.clr_used);
+         flip(bih.clr_important);
+      }
+      write_to_stream(stream,bih.size);
+      write_to_stream(stream,bih.width);
+      write_to_stream(stream,bih.height);
+      write_to_stream(stream,bih.planes);
+      write_to_stream(stream,bih.bit_count);
+      write_to_stream(stream,bih.compression);
+      write_to_stream(stream,bih.size_image);
+      write_to_stream(stream,bih.x_pels_per_meter);
+      write_to_stream(stream,bih.y_pels_per_meter);
+      write_to_stream(stream,bih.clr_used);
+      write_to_stream(stream,bih.clr_important);
+   }
+
    void create_bitmap()
    {
       length_ = width_ * height_ * bytes_per_pixel_;
@@ -1118,7 +1252,6 @@ private:
          delete[] data_;
       }
       data_ = new unsigned char[length_];
-      valid_ = true;
    }
 
    void load_bitmap()
@@ -1166,8 +1299,6 @@ private:
          stream.read(reinterpret_cast<char*>(data_ptr),sizeof(char) * bytes_per_pixel_ * width_);
          stream.read(padding_data,padding);
       }
-
-      valid_ = true;
    }
 
    inline void reverse_channels()
@@ -1192,7 +1323,6 @@ private:
          return v;
    }
 
-   bool           valid_;
    std::string    file_name_;
    unsigned char* data_;
    unsigned int   bytes_per_pixel_;
@@ -1203,130 +1333,6 @@ private:
    channel_mode   channel_mode_;
 };
 
-inline bool big_endian()
-{
-   unsigned int v = 0x01;
-   return (1 != reinterpret_cast<char*>(&v)[0]);
-}
-
-inline unsigned short flip(const unsigned short& v)
-{
-   return ((v >> 8) | (v << 8));
-}
-
-inline unsigned int flip(const unsigned int& v)
-{
-   return (((v & 0xFF000000) >> 0x18) |
-           ((v & 0x000000FF) << 0x18) |
-           ((v & 0x00FF0000) >> 0x08) |
-           ((v & 0x0000FF00) << 0x08));
-}
-
-template<typename T>
-inline void read_from_stream(std::ifstream& stream,T& t)
-{
-   stream.read(reinterpret_cast<char*>(&t),sizeof(T));
-}
-
-template<typename T>
-inline void write_to_stream(std::ofstream& stream,const T& t)
-{
-   stream.write(reinterpret_cast<const char*>(&t),sizeof(T));
-}
-
-inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
-{
-   read_from_stream(stream,bfh.type);
-   read_from_stream(stream,bfh.size);
-   read_from_stream(stream,bfh.reserved1);
-   read_from_stream(stream,bfh.reserved2);
-   read_from_stream(stream,bfh.off_bits);
-
-   if (big_endian())
-   {
-      flip(bfh.type);
-      flip(bfh.size);
-      flip(bfh.reserved1);
-      flip(bfh.reserved2);
-      flip(bfh.off_bits);
-   }
-}
-
-inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh)
-{
-   if (big_endian())
-   {
-      flip(bfh.type);
-      flip(bfh.size);
-      flip(bfh.reserved1);
-      flip(bfh.reserved2);
-      flip(bfh.off_bits);
-   }
-
-   write_to_stream(stream,bfh.type);
-   write_to_stream(stream,bfh.size);
-   write_to_stream(stream,bfh.reserved1);
-   write_to_stream(stream,bfh.reserved2);
-   write_to_stream(stream,bfh.off_bits);
-}
-
-inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
-{
-   read_from_stream(stream,bih.size);
-   read_from_stream(stream,bih.width);
-   read_from_stream(stream,bih.height);
-   read_from_stream(stream,bih.planes);
-   read_from_stream(stream,bih.bit_count);
-   read_from_stream(stream,bih.compression);
-   read_from_stream(stream,bih.size_image);
-   read_from_stream(stream,bih.x_pels_per_meter);
-   read_from_stream(stream,bih.y_pels_per_meter);
-   read_from_stream(stream,bih.clr_used);
-   read_from_stream(stream,bih.clr_important);
-   if (big_endian())
-   {
-      flip(bih.size);
-      flip(bih.width);
-      flip(bih.height);
-      flip(bih.planes);
-      flip(bih.bit_count);
-      flip(bih.compression);
-      flip(bih.size_image);
-      flip(bih.x_pels_per_meter);
-      flip(bih.y_pels_per_meter);
-      flip(bih.clr_used);
-      flip(bih.clr_important);
-   }
-}
-
-inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih)
-{
-   if (big_endian())
-   {
-      flip(bih.size);
-      flip(bih.width);
-      flip(bih.height);
-      flip(bih.planes);
-      flip(bih.bit_count);
-      flip(bih.compression);
-      flip(bih.size_image);
-      flip(bih.x_pels_per_meter);
-      flip(bih.y_pels_per_meter);
-      flip(bih.clr_used);
-      flip(bih.clr_important);
-   }
-   write_to_stream(stream,bih.size);
-   write_to_stream(stream,bih.width);
-   write_to_stream(stream,bih.height);
-   write_to_stream(stream,bih.planes);
-   write_to_stream(stream,bih.bit_count);
-   write_to_stream(stream,bih.compression);
-   write_to_stream(stream,bih.size_image);
-   write_to_stream(stream,bih.x_pels_per_meter);
-   write_to_stream(stream,bih.y_pels_per_meter);
-   write_to_stream(stream,bih.clr_used);
-   write_to_stream(stream,bih.clr_important);
-}
 
 struct rgb_store
 {
@@ -1477,11 +1483,11 @@ inline void upsample(const unsigned int& width,
    }
 }
 
-void checkered_pattern(const unsigned int x_width,
-                       const unsigned int y_width,
-                       const unsigned char value,
-                       const bitmap_image::color_plane color,
-                             bitmap_image& image)
+inline void checkered_pattern(const unsigned int x_width,
+                              const unsigned int y_width,
+                              const unsigned char value,
+                              const bitmap_image::color_plane color,
+                              bitmap_image& image)
 {
    if ((x_width >= image.width()) || (y_width >= image.height()))
    {
@@ -1507,33 +1513,28 @@ void checkered_pattern(const unsigned int x_width,
    }
 }
 
-void plasma(bitmap_image& image,
-            const double& x,     const double& y,
-            const double& width, const double& height,
-            const double& c1,    const double& c2,
-            const double& c3,    const double& c4,
-            const double& roughness = 3.0,
-            const rgb_store colormap[] = 0)
+inline void plasma(bitmap_image& image,
+                   const double& x,     const double& y,
+                   const double& width, const double& height,
+                   const double& c1,    const double& c2,
+                   const double& c3,    const double& c4,
+                   const double& roughness = 3.0,
+                   const rgb_store colormap[] = 0)
 {
    // Note: c1,c2,c3,c4 -> [0.0,1.0]
 
-   double corner1 = 0.0;
-   double corner2 = 0.0;
-   double corner3 = 0.0;
-   double corner4 = 0.0;
-   double center  = 0.0;
    double half_width  = ( width / 2.0);
    double half_height = (height / 2.0);
 
    if ((width >= 1.0) || (height >= 1.0))
    {
-      corner1 = (c1 + c2) / 2.0;
-      corner2 = (c2 + c3) / 2.0;
-      corner3 = (c3 + c4) / 2.0;
-      corner4 = (c4 + c1) / 2.0;
-      center  = (c1 + c2 + c3 + c4) / 4.0 +
-                ((1.0 * ::rand() /(1.0 * RAND_MAX))  - 0.5) * // should use a better rng
-                ((1.0 * half_width + half_height) / (image.width() + image.height()) * roughness);
+      double corner1 = (c1 + c2) / 2.0;
+      double corner2 = (c2 + c3) / 2.0;
+      double corner3 = (c3 + c4) / 2.0;
+      double corner4 = (c4 + c1) / 2.0;
+      double center  = (c1 + c2 + c3 + c4) / 4.0 +
+                       ((1.0 * ::rand() /(1.0 * RAND_MAX))  - 0.5) * // should use a better rng
+                       ((1.0 * half_width + half_height) / (image.width() + image.height()) * roughness);
 
       center = std::min<double>(std::max<double>(0.0,center),1.0);
 
@@ -1549,9 +1550,9 @@ void plasma(bitmap_image& image,
    }
 }
 
-double psnr_region(const unsigned int& x,     const unsigned int& y,
-                   const unsigned int& width, const unsigned int& height,
-                   const bitmap_image& image1, const bitmap_image& image2)
+inline double psnr_region(const unsigned int& x,     const unsigned int& y,
+                          const unsigned int& width, const unsigned int& height,
+                          const bitmap_image& image1, const bitmap_image& image2)
 {
    if ((image1.width() != image2.width()) ||
        (image1.height() != image2.height()))
@@ -1588,10 +1589,10 @@ double psnr_region(const unsigned int& x,     const unsigned int& y,
    }
 }
 
-void hierarchical_psnr_r(const double& x,     const double& y,
-                         const double& width, const double& height,
-                         const bitmap_image& image1, bitmap_image& image2, const double& threshold,
-                         const rgb_store colormap[])
+inline void hierarchical_psnr_r(const double& x,     const double& y,
+                                const double& width, const double& height,
+                                const bitmap_image& image1, bitmap_image& image2, const double& threshold,
+                                const rgb_store colormap[])
 {
    if ((width <= 4.0) || (height <= 4.0))
    {
@@ -1615,7 +1616,7 @@ void hierarchical_psnr_r(const double& x,     const double& y,
    }
 }
 
-void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
+inline void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
 {
    if ((image1.width() != image2.width()) ||
        (image1.height() != image2.height()))
@@ -1638,7 +1639,8 @@ public:
      pen_width_(1),
      pen_color_red_(0),
      pen_color_green_(0),
-     pen_color_blue_(0){};
+     pen_color_blue_(0)
+   {}
 
    void rectangle(int x1, int y1, int x2, int y2)
    {
