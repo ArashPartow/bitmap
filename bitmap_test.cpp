@@ -17,9 +17,10 @@
 */
 
 
+#include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <string>
-#include <cstdlib>
 
 #include "bitmap_image.hpp"
 
@@ -29,6 +30,13 @@ inline void test01()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test01() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    image.save_image("test01_saved.bmp");
 }
 
@@ -37,6 +45,13 @@ inline void test02()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test02() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    image.save_image("test02_saved.bmp");
 
    image.vertical_flip();
@@ -52,6 +67,13 @@ inline void test03()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test03() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    bitmap_image subsampled_image1;
    bitmap_image subsampled_image2;
    bitmap_image subsampled_image3;
@@ -72,6 +94,12 @@ inline void test04()
 
    bitmap_image image(file_name);
 
+   if (!image)
+   {
+      printf("test04() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    bitmap_image upsampled_image1;
    bitmap_image upsampled_image2;
    bitmap_image upsampled_image3;
@@ -91,6 +119,13 @@ inline void test05()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test05() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    image.set_all_ith_bits_low(0);
    image.save_image("test05_lsb0_removed_saved.bmp");
    image.set_all_ith_bits_low(1);
@@ -113,6 +148,12 @@ inline void test06()
 
    bitmap_image image(file_name);
 
+   if (!image)
+   {
+      printf("test06() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    bitmap_image red_channel_image;
    image.export_color_plane(bitmap_image::red_plane,red_channel_image);
    red_channel_image.save_image("test06_red_channel_image.bmp");
@@ -131,6 +172,13 @@ inline void test07()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test07() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    image.convert_to_grayscale();
    image.save_image("test07_grayscale_image.bmp");
 }
@@ -140,6 +188,12 @@ inline void test08()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test08() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
 
    bitmap_image image1;
    bitmap_image image2;
@@ -195,6 +249,13 @@ inline void test10()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test10() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    image.invert_color_planes();
    image.save_image("test10_inverted_color_image.bmp");
 }
@@ -203,6 +264,12 @@ inline void test11()
 {
    std::string file_name("image.bmp");
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test11() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
 
    for (unsigned int i = 0; i < 10; ++i)
    {
@@ -217,6 +284,12 @@ inline void test12()
 
    bitmap_image image(file_name);
 
+   if (!image)
+   {
+      printf("test12() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
+
    double* y  = new double [image.pixel_count()];
    double* cb = new double [image.pixel_count()];
    double* cr = new double [image.pixel_count()];
@@ -227,6 +300,7 @@ inline void test12()
    {
       cb[i] = cr[i] = 0.0;
    }
+
    image.import_ycbcr(y,cb,cr);
    image.save_image("test12_only_y_image.bmp");
 
@@ -240,6 +314,12 @@ inline void test13()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test13() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
 
    double* y  = new double [image.pixel_count()];
    double* cb = new double [image.pixel_count()];
@@ -282,6 +362,12 @@ inline void test15()
    std::string file_name("image.bmp");
 
    bitmap_image image(file_name);
+
+   if (!image)
+   {
+      printf("test15() - Error - Failed to open '%s'\n",file_name.c_str());
+      return;
+   }
 
    double c1 = 0.9;
    double c2 = 0.5;
@@ -412,5 +498,6 @@ int main()
 
 
 /*
-   Note: In some of the tests a bitmap image by the name of 'image.bmp' is required. If not present the test will fail.
+   Note: In some of the tests a bitmap image by the name of 'image.bmp'
+         is required. If not present the test will fail.
 */
