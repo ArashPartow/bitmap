@@ -5,7 +5,7 @@
  *                   Bitmap Image Reader Writer Library                    *
  *                                                                         *
  * Author: Arash Partow - 2002                                             *
- * URL: http://www.partow.net                                              *
+ * URL: http://partow.net/programming/bitmap/index.html                    *
  *                                                                         *
  * Copyright notice:                                                       *
  * Free use of the Platform Independent Bitmap Image Reader Writer Library *
@@ -25,7 +25,7 @@
 #include "bitmap_image.hpp"
 
 
-inline void test01()
+void test01()
 {
    std::string file_name("image.bmp");
 
@@ -40,7 +40,7 @@ inline void test01()
    image.save_image("test01_saved.bmp");
 }
 
-inline void test02()
+void test02()
 {
    std::string file_name("image.bmp");
 
@@ -62,7 +62,7 @@ inline void test02()
    image.save_image("test02_saved_horiz_flip.bmp");
 }
 
-inline void test03()
+void test03()
 {
    std::string file_name("image.bmp");
 
@@ -88,7 +88,7 @@ inline void test03()
    subsampled_image3.save_image("test03_3xsubsampled_image.bmp");
 }
 
-inline void test04()
+void test04()
 {
    std::string file_name("image.bmp");
 
@@ -114,7 +114,7 @@ inline void test04()
    upsampled_image3.save_image("test04_3xupsampled_image.bmp");
 }
 
-inline void test05()
+void test05()
 {
    std::string file_name("image.bmp");
 
@@ -142,7 +142,7 @@ inline void test05()
    image.save_image("test05_lsb0123456_removed_saved.bmp");
 }
 
-inline void test06()
+void test06()
 {
    std::string file_name("image.bmp");
 
@@ -167,7 +167,7 @@ inline void test06()
    blue_channel_image.save_image("test06_blue_channel_image.bmp");
 }
 
-inline void test07()
+void test07()
 {
    std::string file_name("image.bmp");
 
@@ -183,7 +183,7 @@ inline void test07()
    image.save_image("test07_grayscale_image.bmp");
 }
 
-inline void test08()
+void test08()
 {
    std::string file_name("image.bmp");
 
@@ -229,10 +229,11 @@ inline void test08()
    image4.save_image("test08_lower_right_image.bmp");
 }
 
-inline void test09()
+void test09()
 {
    const unsigned int dim = 1000;
    bitmap_image image(dim,dim);
+
    for (unsigned int x = 0; x < dim; ++x)
    {
       for (unsigned int y = 0; y < dim; ++y)
@@ -241,10 +242,11 @@ inline void test09()
          image.set_pixel(x,y,col.red,col.green,col.blue);
       }
    }
+
    image.save_image("test09_color_map_image.bmp");
 }
 
-inline void test10()
+void test10()
 {
    std::string file_name("image.bmp");
 
@@ -260,7 +262,7 @@ inline void test10()
    image.save_image("test10_inverted_color_image.bmp");
 }
 
-inline void test11()
+void test11()
 {
    std::string file_name("image.bmp");
    bitmap_image image(file_name);
@@ -278,7 +280,7 @@ inline void test11()
    }
 }
 
-inline void test12()
+void test12()
 {
    std::string file_name("image.bmp");
 
@@ -309,7 +311,7 @@ inline void test12()
    delete[] cr;
 }
 
-inline void test13()
+void test13()
 {
    std::string file_name("image.bmp");
 
@@ -333,6 +335,7 @@ inline void test13()
       {
          y[i] += 15.0;
       }
+
       image.import_ycbcr(y,cb,cr);
       image.save_image(std::string("test13_") + static_cast<char>(48 + j) + std::string("_y_image.bmp"));
    }
@@ -342,7 +345,20 @@ inline void test13()
    delete[] cr;
 }
 
-inline void test14()
+void test14()
+{
+   bitmap_image image(512,512);
+
+   image.clear();
+   checkered_pattern(64,64,220,bitmap_image::red_plane,image);
+   image.save_image("test14_checkered_01.bmp");
+
+   image.clear();
+   checkered_pattern(32,64,100,200,50,image);
+   image.save_image("test14_checkered_02.bmp");
+}
+
+void test15()
 {
    bitmap_image image(1024,1024);
    image.clear();
@@ -354,10 +370,10 @@ inline void test14()
 
    ::srand(0xA5AA5AA5);
    plasma(image,0,0,image.width(),image.height(),c1,c2,c3,c4,3.0,jet_colormap);
-   image.save_image("test14_plasma.bmp");
+   image.save_image("test15_plasma.bmp");
 }
 
-inline void test15()
+void test16()
 {
    std::string file_name("image.bmp");
 
@@ -365,7 +381,7 @@ inline void test15()
 
    if (!image)
    {
-      printf("test15() - Error - Failed to open '%s'\n",file_name.c_str());
+      printf("test16() - Error - Failed to open '%s'\n",file_name.c_str());
       return;
    }
 
@@ -380,42 +396,42 @@ inline void test15()
    bitmap_image temp_image(image);
 
    temp_image.alpha_blend(0.1, plasma_image);
-   temp_image.save_image("test15_alpha_0.1.bmp");
+   temp_image.save_image("test16_alpha_0.1.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.2, plasma_image);
-   temp_image.save_image("test15_alpha_0.2.bmp");
+   temp_image.save_image("test16_alpha_0.2.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.3, plasma_image);
-   temp_image.save_image("test15_alpha_0.3.bmp");
+   temp_image.save_image("test16_alpha_0.3.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.4, plasma_image);
-   temp_image.save_image("test15_alpha_0.4.bmp");
+   temp_image.save_image("test16_alpha_0.4.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.5, plasma_image);
-   temp_image.save_image("test15_alpha_0.5.bmp");
+   temp_image.save_image("test16_alpha_0.5.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.6, plasma_image);
-   temp_image.save_image("test15_alpha_0.6.bmp");
+   temp_image.save_image("test16_alpha_0.6.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.7, plasma_image);
-   temp_image.save_image("test15_alpha_0.7.bmp");
+   temp_image.save_image("test16_alpha_0.7.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.8, plasma_image);
-   temp_image.save_image("test15_alpha_0.8.bmp");
+   temp_image.save_image("test16_alpha_0.8.bmp");
    temp_image = image;
 
    temp_image.alpha_blend(0.9, plasma_image);
-   temp_image.save_image("test15_alpha_0.9.bmp");
+   temp_image.save_image("test16_alpha_0.9.bmp");
 }
 
-inline void test16()
+void test17()
 {
    bitmap_image image(1024,1024);
 
@@ -443,23 +459,23 @@ inline void test16()
    draw.pen_color(0,255,0);
    draw.rectangle(450,250,850,880);
 
-   image.save_image("test16_image_drawer.bmp");
+   image.save_image("test17_image_drawer.bmp");
 }
 
-inline void test17()
+void test18()
 {
    bitmap_image image(1000,180);
    image_drawer draw(image);
    const rgb_store* colormap[9] = {
-                                   autumn_colormap,
-                                   copper_colormap,
-                                   gray_colormap,
-                                   hot_colormap,
-                                   hsv_colormap,
-                                   jet_colormap,
-                                   prism_colormap,
-                                   vga_colormap,
-                                   yarg_colormap
+                                    autumn_colormap,
+                                    copper_colormap,
+                                    gray_colormap,
+                                    hot_colormap,
+                                    hsv_colormap,
+                                    jet_colormap,
+                                    prism_colormap,
+                                    vga_colormap,
+                                    yarg_colormap
                                   };
 
    for (unsigned int i = 0; i < image.width(); ++i)
@@ -471,7 +487,7 @@ inline void test17()
       }
    }
 
-   image.save_image("test17_color_maps.bmp");
+   image.save_image("test18_color_maps.bmp");
 }
 
 int main()
@@ -493,6 +509,7 @@ int main()
    test15();
    test16();
    test17();
+   test18();
    return 0;
 }
 
