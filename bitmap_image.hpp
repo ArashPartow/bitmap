@@ -521,7 +521,12 @@ public:
       }
    }
 
-   inline const unsigned char* data()
+   inline const unsigned char* data() const
+   {
+      return data_;
+   }
+
+   inline unsigned char* data()
    {
       return data_;
    }
@@ -1172,6 +1177,20 @@ public:
       }
    }
 
+   inline void reverse_channels()
+   {
+      if (3 != bytes_per_pixel_)
+         return;
+
+      for (unsigned char* itr = data_; itr < (data_ + length_); itr += bytes_per_pixel_)
+      {
+         unsigned char tmp = *(itr + 0);
+
+         *(itr + 0) = *(itr + 2);
+         *(itr + 2) = tmp;
+      }
+   }
+
 private:
 
    struct bitmap_file_header
@@ -1414,20 +1433,6 @@ private:
 
          stream.read(reinterpret_cast<char*>(data_ptr),sizeof(char) * bytes_per_pixel_ * width_);
          stream.read(padding_data,padding);
-      }
-   }
-
-   inline void reverse_channels()
-   {
-      if (3 != bytes_per_pixel_)
-         return;
-
-      for (unsigned char* itr = data_; itr < (data_ + length_); itr += bytes_per_pixel_)
-      {
-         unsigned char tmp = *(itr + 0);
-
-         *(itr + 0) = *(itr + 2);
-         *(itr + 2) = tmp;
       }
    }
 
