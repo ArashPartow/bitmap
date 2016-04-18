@@ -464,30 +464,51 @@ void test17()
 
 void test18()
 {
-   bitmap_image image(1000,180);
-   image_drawer draw(image);
-   const rgb_store* colormap[9] = {
-                                    autumn_colormap,
-                                    copper_colormap,
-                                    gray_colormap,
-                                    hot_colormap,
-                                    hsv_colormap,
-                                    jet_colormap,
-                                    prism_colormap,
-                                    vga_colormap,
-                                    yarg_colormap
-                                  };
-
-   for (unsigned int i = 0; i < image.width(); ++i)
    {
-      for (unsigned int j = 0; j < 9; ++j)
+      bitmap_image image(1000,180);
+      image_drawer draw(image);
+      const rgb_store* colormap[9] = {
+                                       autumn_colormap,
+                                       copper_colormap,
+                                       gray_colormap,
+                                       hot_colormap,
+                                       hsv_colormap,
+                                       jet_colormap,
+                                       prism_colormap,
+                                       vga_colormap,
+                                       yarg_colormap
+                                     };
+
+      for (unsigned int i = 0; i < image.width(); ++i)
       {
-         draw.pen_color(colormap[j][i].red,colormap[j][i].green,colormap[j][i].blue);
-         draw.vertical_line_segment(j * 20, (j + 1) * 20, i);
+         for (unsigned int j = 0; j < 9; ++j)
+         {
+            draw.pen_color(colormap[j][i].red,colormap[j][i].green,colormap[j][i].blue);
+            draw.vertical_line_segment(j * 20, (j + 1) * 20, i);
+         }
       }
+
+      image.save_image("test18_color_maps.bmp");
    }
 
-   image.save_image("test18_color_maps.bmp");
+   {
+      bitmap_image image(1000,500);
+      image_drawer draw(image);
+
+      std::size_t palette_colormap_size = sizeof(palette_colormap) / sizeof(rgb_store);
+      std::size_t bar_width = image.width() / palette_colormap_size;
+
+      for (std::size_t i = 0; i < palette_colormap_size; ++i)
+      {
+         for (std::size_t j = 0; j < bar_width; ++j)
+         {
+            draw.pen_color(palette_colormap[i].red,palette_colormap[i].green,palette_colormap[i].blue);
+            draw.vertical_line_segment(0,image.height(),i * bar_width + j);
+         }
+      }
+
+      image.save_image("test18_palette_colormap.bmp");
+   }
 }
 
 int main()
