@@ -2204,30 +2204,6 @@ public:
       return !image_;
    }
 
-   double clamp_x(double x)
-   {
-           if (x < min_x_)  return min_x_;
-      else if (x > max_x_)  return max_x_;
-      else                  return x;
-   }
-
-   double clamp_y(double y)
-   {
-           if (y < min_y_)  return min_y_;
-      else if (y > max_y_)  return max_y_;
-      else                  return y;
-   }
-
-   double cart_to_screen_x(double x)
-   {
-      return x + width_div2_;
-   }
-
-   double cart_to_screen_y(double y)
-   {
-      return height_div2_ - y;
-   }
-
    void rectangle(double x1, double y1, double x2, double y2)
    {
       line_segment(x1,y1,x2,y1);
@@ -2376,6 +2352,30 @@ private:
       image_.clear(0xFF);
    }
 
+   double clamp_x(const double& x)
+   {
+           if (x < min_x_)  return min_x_;
+      else if (x > max_x_)  return max_x_;
+      else                  return x;
+   }
+
+   double clamp_y(const double& y)
+   {
+           if (y < min_y_)  return min_y_;
+      else if (y > max_y_)  return max_y_;
+      else                  return y;
+   }
+
+   double cart_to_screen_x(const double& x)
+   {
+      return x + width_div2_;
+   }
+
+   double cart_to_screen_y(const double& y)
+   {
+      return height_div2_ - y;
+   }
+
    enum clip_code
    {
       e_clip_bottom = 1,
@@ -2384,7 +2384,11 @@ private:
       e_clip_right  = 8
    };
 
-   int out_code(double x, double y, double x1, double y1, double x2, double y2)
+   int out_code(
+                 const double&  x, const double&  y,
+                 const double& x1, const double& y1,
+                 const double& x2, const double& y2
+               )
    {
       int result = 0;
       if (y < y1)      result |= e_clip_bottom;
