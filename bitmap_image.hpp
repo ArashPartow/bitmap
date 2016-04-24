@@ -369,7 +369,7 @@ public:
       }
    }
 
-   void save_image(const std::string& file_name)
+   void save_image(const std::string& file_name) const
    {
       std::ofstream stream(file_name.c_str(),std::ios::binary);
 
@@ -385,13 +385,13 @@ public:
       bih.width            = width_;
       bih.height           = height_;
       bih.bit_count        = static_cast<unsigned short>(bytes_per_pixel_ << 3);
-      bih.clr_important    =  0;
-      bih.clr_used         =  0;
-      bih.compression      =  0;
-      bih.planes           =  1;
-      bih.size             =  bih.struct_size();
-      bih.x_pels_per_meter =  0;
-      bih.y_pels_per_meter =  0;
+      bih.clr_important    = 0;
+      bih.clr_used         = 0;
+      bih.compression      = 0;
+      bih.planes           = 1;
+      bih.size             = bih.struct_size();
+      bih.x_pels_per_meter = 0;
+      bih.y_pels_per_meter = 0;
       bih.size_image       = (((bih.width * bytes_per_pixel_) + 3) & 0x0000FFFC) * bih.height;
 
       bfh.type      = 19778;
@@ -408,9 +408,9 @@ public:
 
       for (unsigned int i = 0; i < height_; ++i)
       {
-         unsigned char* data_ptr = &data_[(row_increment_ * (height_ - i - 1))];
+         const unsigned char* data_ptr = &data_[(row_increment_ * (height_ - i - 1))];
 
-         stream.write(reinterpret_cast<char*>(data_ptr),sizeof(unsigned char) * bytes_per_pixel_ * width_);
+         stream.write(reinterpret_cast<const char*>(data_ptr),sizeof(unsigned char) * bytes_per_pixel_ * width_);
          stream.write(padding_data,padding);
       }
 
@@ -902,10 +902,15 @@ public:
             for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
-               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
-               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
-               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               total += *(itr1[k]);
+               total += *(itr1[k]);
+               total += *(itr2[k]);
+               total += *(itr2[k]);
+
+               itr1[k] += bytes_per_pixel_;
+               itr1[k] += bytes_per_pixel_;
+               itr2[k] += bytes_per_pixel_;
+               itr2[k] += bytes_per_pixel_;
 
                *(s_itr[k]) = static_cast<unsigned char>(total >> 2);
             }
@@ -916,8 +921,11 @@ public:
             for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
-               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               total += *(itr1[k]);
+               total += *(itr2[k]);
+
+               itr1[k] += bytes_per_pixel_;
+               itr2[k] += bytes_per_pixel_;
 
                *(s_itr[k]) = static_cast<unsigned char>(total >> 1);
             }
@@ -944,8 +952,11 @@ public:
             for (unsigned int k = 0; k < bytes_per_pixel_; s_itr[k] += bytes_per_pixel_, ++k)
             {
                total = 0;
-               total += *(itr1[k]); itr1[k] += bytes_per_pixel_;
-               total += *(itr2[k]); itr2[k] += bytes_per_pixel_;
+               total += *(itr1[k]);
+               total += *(itr2[k]);
+
+               itr1[k] += bytes_per_pixel_;
+               itr2[k] += bytes_per_pixel_;
 
                *(s_itr[k]) = static_cast<unsigned char>(total >> 1);
             }
@@ -1209,11 +1220,11 @@ private:
 
       unsigned int struct_size() const
       {
-         return sizeof(type)      +
-                sizeof(size)      +
+         return sizeof(type     ) +
+                sizeof(size     ) +
                 sizeof(reserved1) +
                 sizeof(reserved2) +
-                sizeof(off_bits);
+                sizeof(off_bits ) ;
       }
 
       void clear()
@@ -1238,17 +1249,17 @@ private:
 
       unsigned int struct_size() const
       {
-         return sizeof(size)             +
-                sizeof(width)            +
-                sizeof(height)           +
-                sizeof(planes)           +
-                sizeof(bit_count)        +
-                sizeof(compression)      +
-                sizeof(size_image)       +
+         return sizeof(size            ) +
+                sizeof(width           ) +
+                sizeof(height          ) +
+                sizeof(planes          ) +
+                sizeof(bit_count       ) +
+                sizeof(compression     ) +
+                sizeof(size_image      ) +
                 sizeof(x_pels_per_meter) +
                 sizeof(y_pels_per_meter) +
-                sizeof(clr_used)         +
-                sizeof(clr_important);
+                sizeof(clr_used        ) +
+                sizeof(clr_important   ) ;
       }
 
       void clear()
@@ -1257,19 +1268,19 @@ private:
       }
    };
 
-   inline bool big_endian()
+   inline bool big_endian() const
    {
       unsigned int v = 0x01;
 
       return (1 != reinterpret_cast<char*>(&v)[0]);
    }
 
-   inline unsigned short flip(const unsigned short& v)
+   inline unsigned short flip(const unsigned short& v) const
    {
       return ((v >> 8) | (v << 8));
    }
 
-   inline unsigned int flip(const unsigned int& v)
+   inline unsigned int flip(const unsigned int& v) const
    {
       return (
                ((v & 0xFF000000) >> 0x18) |
@@ -1286,30 +1297,30 @@ private:
    }
 
    template <typename T>
-   inline void write_to_stream(std::ofstream& stream,const T& t)
+   inline void write_to_stream(std::ofstream& stream,const T& t) const
    {
       stream.write(reinterpret_cast<const char*>(&t),sizeof(T));
    }
 
    inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
    {
-      read_from_stream(stream,bfh.type);
-      read_from_stream(stream,bfh.size);
+      read_from_stream(stream,bfh.type     );
+      read_from_stream(stream,bfh.size     );
       read_from_stream(stream,bfh.reserved1);
       read_from_stream(stream,bfh.reserved2);
-      read_from_stream(stream,bfh.off_bits);
+      read_from_stream(stream,bfh.off_bits );
 
       if (big_endian())
       {
-         bfh.type      = flip(bfh.type);
-         bfh.size      = flip(bfh.size);
+         bfh.type      = flip(bfh.type     );
+         bfh.size      = flip(bfh.size     );
          bfh.reserved1 = flip(bfh.reserved1);
          bfh.reserved2 = flip(bfh.reserved2);
-         bfh.off_bits  = flip(bfh.off_bits);
+         bfh.off_bits  = flip(bfh.off_bits );
       }
    }
 
-   inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh)
+   inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh) const
    {
       if (big_endian())
       {
@@ -1359,7 +1370,7 @@ private:
       }
    }
 
-   inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih)
+   inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih) const
    {
       if (big_endian())
       {
@@ -1557,7 +1568,7 @@ inline void subsample(const unsigned int& width,
                       const double* source,
                       unsigned int& w,
                       unsigned int& h,
-                      double** dest)
+                      double*& dest)
 {
    /*  Single channel.  */
 
@@ -1586,11 +1597,11 @@ inline void subsample(const unsigned int& width,
    unsigned int horizontal_upper = (odd_width)  ? w - 1 : w;
    unsigned int vertical_upper   = (odd_height) ? h - 1 : h;
 
-   *dest = new double[w * h];
+   dest = new double[w * h];
 
-   double* s_itr = *dest;
-   const double* itr1 = source;
-   const double* itr2 = source + width;
+         double* s_itr = dest;
+   const double* itr1  = source;
+   const double* itr2  = source + width;
 
    for (unsigned int j = 0; j < vertical_upper; ++j)
    {
@@ -1605,7 +1616,7 @@ inline void subsample(const unsigned int& width,
 
       if (odd_width)
       {
-         (*(s_itr++)) = ( (*itr1++) + (*itr2++) ) / 2.0;
+         (*(s_itr++)) = ((*itr1++) + (*itr2++)) / 2.0;
       }
 
       itr1 += width;
@@ -1637,18 +1648,18 @@ inline void upsample(const unsigned int& width,
                      const double* source,
                      unsigned int& w,
                      unsigned int& h,
-                     double** dest)
+                     double*& dest)
 {
    /* Single channel. */
 
    w = 2 * width;
    h = 2 * height;
 
-   *dest = new double[w * h];
+   dest = new double[w * h];
 
    const double* s_itr = source;
-         double* itr1  = *dest;
-         double* itr2  = *dest + w;
+         double* itr1  = dest;
+         double* itr2  = dest + w;
 
    for (unsigned int j = 0; j < height; ++j)
    {
@@ -2132,6 +2143,14 @@ public:
 
    void plot_pixel(int x, int y)
    {
+      if (
+           (x < 0) ||
+           (y < 0) ||
+           (x >= static_cast<int>(image_.width ())) ||
+           (y >= static_cast<int>(image_.height()))
+         )
+         return;
+
       image_.set_pixel(x,y,pen_color_red_,pen_color_green_,pen_color_blue_);
    }
 
@@ -2162,6 +2181,295 @@ private:
    unsigned char pen_color_red_;
    unsigned char pen_color_green_;
    unsigned char pen_color_blue_;
+};
+
+class cartesian_canvas
+{
+public:
+
+   cartesian_canvas(const double x_length, const double y_length)
+   : width_div2_ (0.0),
+     height_div2_(0.0),
+     min_x_      (0.0),
+     min_y_      (0.0),
+     max_x_      (0.0),
+     max_y_      (0.0),
+     draw_       (image_)
+   {
+      setup_canvas(x_length,y_length);
+   }
+
+   inline bool operator!()
+   {
+      return !image_;
+   }
+
+   double clamp_x(double x)
+   {
+           if (x < min_x_)  return min_x_;
+      else if (x > max_x_)  return max_x_;
+      else                  return x;
+   }
+
+   double clamp_y(double y)
+   {
+           if (y < min_y_)  return min_y_;
+      else if (y > max_y_)  return max_y_;
+      else                  return y;
+   }
+
+   double cart_to_screen_x(double x)
+   {
+      return x + width_div2_;
+   }
+
+   double cart_to_screen_y(double y)
+   {
+      return height_div2_ - y;
+   }
+
+   void rectangle(double x1, double y1, double x2, double y2)
+   {
+      line_segment(x1,y1,x2,y1);
+      line_segment(x2,y1,x2,y2);
+      line_segment(x2,y2,x1,y2);
+      line_segment(x1,y2,x1,y1);
+   }
+
+   void triangle(double x1, double y1, double x2, double y2,int x3, double y3)
+   {
+      line_segment(x1,y1,x2,y2);
+      line_segment(x2,y2,x3,y3);
+      line_segment(x3,y3,x1,y1);
+   }
+
+   void quadix(double x1, double y1, double x2, double y2,int x3, double y3, double x4, double y4)
+   {
+      line_segment(x1,y1,x2,y2);
+      line_segment(x2,y2,x3,y3);
+      line_segment(x3,y3,x4,y4);
+      line_segment(x4,y4,x1,y1);
+   }
+
+   void line_segment(double x1, double y1, double x2, double y2)
+   {
+      if (clip(x1,y1,x2,y2))
+      {
+         const int sc_x1 = static_cast<int>(cart_to_screen_x(x1));
+         const int sc_x2 = static_cast<int>(cart_to_screen_x(x2));
+         const int sc_y1 = static_cast<int>(cart_to_screen_y(y1));
+         const int sc_y2 = static_cast<int>(cart_to_screen_y(y2));
+
+         draw_.line_segment(sc_x1,sc_y1,sc_x2,sc_y2);
+      }
+   }
+
+   void horiztonal_line_segment(double x1, double x2, double y)
+   {
+      x1 = clamp_x(x1);
+      x2 = clamp_x(x2);
+      y  = clamp_y( y);
+
+      const int sc_x1 = static_cast<int>(cart_to_screen_x(x1));
+      const int sc_x2 = static_cast<int>(cart_to_screen_x(x2));
+      const int sc_y  = static_cast<int>(cart_to_screen_y(y ));
+
+      draw_.horiztonal_line_segment(sc_x1,sc_x2,sc_y);
+   }
+
+   void vertical_line_segment(double y1, double y2, double x)
+   {
+      y1 = clamp_y(y1);
+      y2 = clamp_y(y2);
+      x  = clamp_x( x);
+
+      const int sc_y1 = static_cast<int>(cart_to_screen_y(y1));
+      const int sc_y2 = static_cast<int>(cart_to_screen_y(y2));
+      const int sc_x  = static_cast<int>(cart_to_screen_x(x ));
+
+      draw_.vertical_line_segment(sc_y1,sc_y2,sc_x);
+   }
+
+   void ellipse(double centerx, double centery, double a, double b)
+   {
+
+      const int sc_cx = static_cast<int>(cart_to_screen_x(centerx));
+      const int sc_cy = static_cast<int>(cart_to_screen_y(centery));
+
+      draw_.ellipse(sc_cx,sc_cy,static_cast<int>(a),static_cast<int>(b));
+   }
+
+   void circle(double centerx, double centery, double radius)
+   {
+      const int sc_cx = static_cast<int>(cart_to_screen_x(centerx));
+      const int sc_cy = static_cast<int>(cart_to_screen_y(centery));
+
+      draw_.circle(sc_cx,sc_cy,static_cast<int>(radius));
+   }
+
+   void plot_pen_pixel(double x, double y)
+   {
+      if ((x < min_x_) || (x > max_x_)) return;
+      if ((y < min_y_) || (y > max_y_)) return;
+
+      const int sc_x = static_cast<int>(cart_to_screen_x(x));
+      const int sc_y = static_cast<int>(cart_to_screen_y(y));
+
+      draw_.plot_pen_pixel(sc_x,sc_y);
+   }
+
+   void plot_pixel(double x, double y)
+   {
+      if ((x < min_x_) || (x > max_x_)) return;
+      if ((y < min_y_) || (y > max_y_)) return;
+
+      const int sc_x = static_cast<int>(cart_to_screen_x(x));
+      const int sc_y = static_cast<int>(cart_to_screen_y(y));
+
+      draw_.plot_pixel(sc_x,sc_y);
+   }
+
+   void pen_width(const unsigned int& width)
+   {
+      draw_.pen_width(width);
+   }
+
+   void pen_color(const unsigned char& red,
+                  const unsigned char& green,
+                  const unsigned char& blue)
+   {
+      draw_.pen_color(red,green,blue);
+   }
+
+   const bitmap_image& image() const
+   {
+      return image_;
+   }
+
+   void set_widthheight(const double x_length, const double y_length)
+   {
+      setup_canvas(x_length,y_length);
+   }
+
+   double min_x() const { return min_x_; }
+   double min_y() const { return min_y_; }
+   double max_x() const { return max_x_; }
+   double max_y() const { return max_y_; }
+
+private:
+
+   void setup_canvas(const double x_length, const double y_length)
+   {
+      if ((x_length < 2.0) || (y_length < 2.0))
+         return;
+
+      width_div2_  = x_length / 2.0;
+      height_div2_ = y_length / 2.0;
+
+      min_x_ = -width_div2_;
+      min_y_ = -height_div2_;
+      max_x_ =  width_div2_;
+      max_y_ =  height_div2_;
+
+      image_.setwidth_height(static_cast<unsigned int>(x_length) + 1,static_cast<unsigned int>(y_length) + 1);
+
+      image_.clear(0xFF);
+   }
+
+   enum clip_code
+   {
+      e_clip_bottom = 1,
+      e_clip_top    = 2,
+      e_clip_left   = 4,
+      e_clip_right  = 8
+   };
+
+   int out_code(double x, double y, double x1, double y1, double x2, double y2)
+   {
+      int result = 0;
+      if (y < y1)      result |= e_clip_bottom;
+      else if (y > y2) result |= e_clip_top;
+
+      if (x < x1)      result |= e_clip_left;
+      else if (x > x2) result |= e_clip_right;
+
+      return result;
+   }
+
+   bool clip(double& x1, double& y1, double& x2, double& y2)
+   {
+      bool   result = false;
+      double x      = 0.0;
+      double y      = 0.0;
+
+      int outcode0   = out_code(x1, y1, min_x_, min_y_, max_x_, max_y_);
+      int outcode1   = out_code(x2, y2, min_x_, min_y_, max_x_, max_y_);
+      int outcodeout = 0;
+
+      while ((outcode0 != 0) || (outcode1 != 0))
+      {
+         if ((outcode0 & outcode1) != 0)
+            return result;
+         else
+         {
+            if (outcode0 != 0)
+               outcodeout = outcode0;
+            else
+               outcodeout = outcode1;
+
+            double dx = (x2 - x1);
+            double dy = (y2 - y1);
+
+            if ((outcodeout & e_clip_bottom) == e_clip_bottom)
+            {
+               x = x1 + dx * (min_y_ - y1) / dy;
+               y = min_y_;
+            }
+            else if ((outcodeout & e_clip_top) == e_clip_top)
+            {
+               x = x1 + dx * (max_y_ - y1) / dy;
+               y = max_y_;
+            }
+            else if ((outcodeout & e_clip_right) == e_clip_right)
+            {
+               y = y1 + dy * (max_x_ - x1) / dx;
+               x = max_x_;
+            }
+            else if ((outcodeout & e_clip_left) == e_clip_left)
+            {
+               y = y1 + dy * (min_x_ - x1) / dx;
+               x = min_x_;
+            }
+
+            if (outcodeout == outcode0)
+            {
+               x1 = x;
+               y1 = y;
+               outcode0 = out_code(x1, y1, min_x_, min_y_, max_x_, max_y_);
+            }
+            else
+            {
+               x2 = x;
+               y2 = y;
+               outcode1 = out_code(x2, y2, min_x_, min_y_, max_x_, max_y_);
+            }
+         }
+      }
+
+      return true;
+   }
+
+   cartesian_canvas(const cartesian_canvas&);
+   cartesian_canvas operator=(const cartesian_canvas&);
+
+   double width_div2_;
+   double height_div2_;
+   double min_x_;
+   double min_y_;
+   double max_x_;
+   double max_y_;
+   bitmap_image image_;
+   image_drawer draw_;
 };
 
 enum palette_name

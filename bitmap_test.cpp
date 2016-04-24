@@ -232,6 +232,7 @@ void test08()
 void test09()
 {
    const unsigned int dim = 1000;
+
    bitmap_image image(dim,dim);
 
    for (unsigned int x = 0; x < dim; ++x)
@@ -265,6 +266,7 @@ void test10()
 void test11()
 {
    std::string file_name("image.bmp");
+
    bitmap_image image(file_name);
 
    if (!image)
@@ -361,6 +363,7 @@ void test14()
 void test15()
 {
    bitmap_image image(1024,1024);
+
    image.clear();
 
    double c1 = 0.9;
@@ -511,6 +514,30 @@ void test18()
    }
 }
 
+void test19()
+{
+   cartesian_canvas canvas(1000,1000);
+
+   canvas.rectangle(canvas.min_x(), canvas.min_y(), canvas.max_x(), canvas.max_y());
+
+   canvas.horiztonal_line_segment(canvas.min_x(),canvas.max_x(),-400);
+
+   canvas.line_segment(-500,600,600,-500);
+
+   canvas.pen_width(3);
+
+   for (std::size_t i = 0; i < 160; i++)
+   {
+      std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+
+      canvas.pen_color(palette_colormap[c_idx].red,palette_colormap[c_idx].green,palette_colormap[c_idx].blue);
+
+      canvas.circle(0,0,3 * i);
+   }
+
+   canvas.image().save_image("test19_cartesian_canvas.bmp");
+}
+
 int main()
 {
    test01();
@@ -531,6 +558,7 @@ int main()
    test16();
    test17();
    test18();
+   test19();
    return 0;
 }
 
