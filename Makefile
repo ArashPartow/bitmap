@@ -14,7 +14,7 @@
 
 COMPILER      = -c++
 OPTIONS       = -ansi -pedantic-errors -Wall -Wall -Werror -Wextra -o
-LINKER_OPT    = -L/usr/lib -lstdc++
+LINKER_OPT    = -L/usr/lib -lstdc++ -lm
 
 all: bitmap_test
 

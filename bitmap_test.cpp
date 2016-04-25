@@ -516,26 +516,67 @@ void test18()
 
 void test19()
 {
-   cartesian_canvas canvas(1000,1000);
-
-   canvas.rectangle(canvas.min_x(), canvas.min_y(), canvas.max_x(), canvas.max_y());
-
-   canvas.horiztonal_line_segment(canvas.min_x(),canvas.max_x(),-400);
-
-   canvas.line_segment(-500,600,600,-500);
-
-   canvas.pen_width(3);
-
-   for (std::size_t i = 0; i < 160; i++)
    {
-      std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+      cartesian_canvas canvas(1000, 1000);
 
-      canvas.pen_color(palette_colormap[c_idx].red,palette_colormap[c_idx].green,palette_colormap[c_idx].blue);
+      if (!canvas)
+      {
+         printf("test19() - Error - Failed to instantiate cartesian canvas(1000x1000) [1]\n");
+         return;
+      }
 
-      canvas.circle(0,0,3 * i);
+      canvas.rectangle(canvas.min_x(), canvas.min_y(), canvas.max_x(), canvas.max_y());
+
+      canvas.horiztonal_line_segment(canvas.min_x(), canvas.max_x(), -400);
+
+      canvas.line_segment(-500, 600, 600, -500);
+
+      canvas.pen_width(3);
+
+      for (std::size_t i = 0; i < 160; i++)
+      {
+         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+
+         canvas.pen_color(palette_colormap[c_idx].red, palette_colormap[c_idx].green, palette_colormap[c_idx].blue);
+
+         canvas.circle(0, 0, 3 * i);
+      }
+
+      canvas.image().save_image("test19_cartesian_canvas01.bmp");
    }
 
-   canvas.image().save_image("test19_cartesian_canvas.bmp");
+   {
+      static const double pi = 3.14159265358979323846264338327950288419716939937510;
+
+      cartesian_canvas canvas(1000, 1000);
+
+      if (!canvas)
+      {
+         printf("test19() - Error - Failed to instantiate cartesian canvas(1000x1000) [2]\n");
+         return;
+      }
+
+      canvas.image().set_all_channels(0xFF);
+
+      canvas.pen_width(2);
+
+      unsigned int i = 0;
+
+      for (double x = -500; x < 500; x += 3, ++i)
+      {
+         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+
+         canvas.pen_color(palette_colormap[c_idx].red, palette_colormap[c_idx].green, palette_colormap[c_idx].blue);
+
+         double radius = std::max(10.0,std::abs(80.0 * std::sin((1.0 / 80.0) * pi * x)));
+
+         double y = 400.0 * std::sin((1.0 / 200.0) * pi * x);
+
+         canvas.circle(x, y, radius);
+      }
+
+      canvas.image().save_image("test19_cartesian_canvas02.bmp");
+   }
 }
 
 int main()

@@ -49,7 +49,6 @@ public:
                        red_plane   = 2
                     };
 
-
    bitmap_image()
    : file_name_(""),
      width_ (0),
@@ -112,10 +111,10 @@ public:
 
    inline bool operator!()
    {
-      return (data_.size()  == 0) ||
-             (width_        == 0) ||
-             (height_       == 0) ||
-             (row_increment_== 0);
+      return (data_.size()   == 0) ||
+             (width_         == 0) ||
+             (height_        == 0) ||
+             (row_increment_ == 0);
    }
 
    inline void clear(const unsigned char v = 0x00)
@@ -1413,7 +1412,7 @@ private:
    void create_bitmap()
    {
       row_increment_ = width_ * bytes_per_pixel_;
-      data_.resize(width_ * height_ * bytes_per_pixel_);
+      data_.resize(height_ * row_increment_);
    }
 
    void load_bitmap()
@@ -1425,6 +1424,9 @@ private:
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - file " << file_name_ << " not found!" << std::endl;
          return;
       }
+
+      width_  = 0;
+      height_ = 0;
 
       bitmap_file_header bfh;
       bitmap_information_header bih;
@@ -1438,15 +1440,21 @@ private:
       if (bfh.type != 19778)
       {
          bfh.clear();
+         bih.clear();
+
          stream.close();
+
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid type value " << bfh.type << " expected 19778." << std::endl;
          return;
       }
 
       if (bih.bit_count != 24)
       {
+         bfh.clear();
          bih.clear();
+
          stream.close();
+
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid bit depth " << bih.bit_count << " expected 24." << std::endl;
 
          return;
@@ -1456,14 +1464,16 @@ private:
       {
          bfh.clear();
          bih.clear();
+
          stream.close();
+
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid BIH size " << bih.size << " expected " << bih.struct_size() << std::endl;
 
          return;
       }
 
-      height_ = bih.height;
       width_  = bih.width;
+      height_ = bih.height;
 
       bytes_per_pixel_ = bih.bit_count >> 3;
 
@@ -1478,7 +1488,9 @@ private:
       {
          bfh.clear();
          bih.clear();
+
          stream.close();
+
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Mismatch between logical and physical sizes of bitmap. " <<
                       "Logical: "  << bitmap_logical_size << " " <<
                       "Physical: " << bitmap_file_size    << std::endl;
@@ -1516,7 +1528,6 @@ private:
    channel_mode channel_mode_;
    std::vector<unsigned char> data_;
 };
-
 
 struct rgb_store
 {
@@ -2318,6 +2329,11 @@ public:
    }
 
    const bitmap_image& image() const
+   {
+      return image_;
+   }
+
+   bitmap_image& image()
    {
       return image_;
    }
