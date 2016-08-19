@@ -12,6 +12,8 @@ The C++ Bitmap Library consists of simple, robust, optimized and portable proces
 + Graphics drawing interface (line, line-segment, rectangle, triangle, quadix, horizontal and vertical line-segments, ellipse, circle, plot pixel, pen width, pen color)
 + Cartesian canvas and associated drawing interface
 + PSNR and Image comparisons
++ Simple nearest color match from set of colors
++ Wavelength to RGB approximations
 + Single header implementation, no building required. No external dependencies
 
 

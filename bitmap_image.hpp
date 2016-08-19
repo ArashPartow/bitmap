@@ -2524,37 +2524,37 @@ rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
    double green = 0.0;
    double blue  = 0.0;
 
-   if ((380 <= wave_length_nm) && (wave_length_nm <= 439))
+   if ((380.0 <= wave_length_nm) && (wave_length_nm <= 439.0))
    {
-      red   = -(wave_length_nm - 440) / (440 - 380);
+      red   = -(wave_length_nm - 440.0) / (440.0 - 380.0);
       green = 0.0;
       blue  = 1.0;
    }
-   else if ((440 <= wave_length_nm) && (wave_length_nm <= 489))
+   else if ((440.0 <= wave_length_nm) && (wave_length_nm <= 489.0))
    {
       red   = 0.0;
-      green = (wave_length_nm - 440) / (490 - 440);
+      green = (wave_length_nm - 440.0) / (490.0 - 440.0);
       blue  = 1.0;
    }
-   else if ((490 <= wave_length_nm) && (wave_length_nm <= 509))
+   else if ((490.0 <= wave_length_nm) && (wave_length_nm <= 509.0))
    {
       red   = 0.0;
       green = 1.0;
-      blue  = -(wave_length_nm - 510) / (510 - 490);
+      blue  = -(wave_length_nm - 510.0) / (510.0 - 490.0);
    }
-   else if ((510 <= wave_length_nm) && (wave_length_nm <= 579))
+   else if ((510.0 <= wave_length_nm) && (wave_length_nm <= 579.0))
    {
-      red   = (wave_length_nm - 510) / (580 - 510);
+      red   = (wave_length_nm - 510.0) / (580.0 - 510.0);
       green = 1.0;
       blue  = 0.0;
    }
-   else if ((580 <= wave_length_nm) && (wave_length_nm <= 644))
+   else if ((580.0 <= wave_length_nm) && (wave_length_nm <= 644.0))
    {
       red   = 1.0;
-      green = -(wave_length_nm - 645) / (645 - 580);
+      green = -(wave_length_nm - 645.0) / (645.0 - 580.0);
       blue  = 0.0;
    }
-   else if ((645 <= wave_length_nm) && (wave_length_nm <= 780))
+   else if ((645.0 <= wave_length_nm) && (wave_length_nm <= 780.0))
    {
       red   = 1.0;
       green = 0.0;
@@ -2563,19 +2563,19 @@ rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
 
    double factor = 0.0;
 
-   if ((380 <= wave_length_nm) && (wave_length_nm <= 419))
-      factor = 0.3 + 0.7 * (wave_length_nm - 380) / (420 - 380);
-   else if ((420 <= wave_length_nm) && (wave_length_nm <= 700))
+   if ((380.0 <= wave_length_nm) && (wave_length_nm <= 419.0))
+      factor = 0.3 + 0.7 * (wave_length_nm - 380.0) / (420.0 - 380.0);
+   else if ((420.0 <= wave_length_nm) && (wave_length_nm <= 700.0))
       factor = 1.0;
-   else if ((701 <= wave_length_nm) && (wave_length_nm <= 780))
-      factor = 0.3 + 0.7 * (780 - wave_length_nm) / (780 - 700);
+   else if ((701.0 <= wave_length_nm) && (wave_length_nm <= 780.0))
+      factor = 0.3 + 0.7 * (780.0 - wave_length_nm) / (780.0 - 700.0);
    else
       factor = 0.0;
 
    rgb_store result;
 
-   const double gamma         = 0.80;
-   const double intensity_max =  255;
+   const double gamma         =   0.8;
+   const double intensity_max = 255.0;
 
    result.red   = static_cast<unsigned char>((red   == 0.0) ? red   : round(intensity_max * std::pow(red   * factor,gamma)));
    result.green = static_cast<unsigned char>((green == 0.0) ? green : round(intensity_max * std::pow(green * factor,gamma)));
@@ -2587,9 +2587,9 @@ rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
 double weighted_distance(const unsigned char r0, const unsigned char g0, const unsigned char b0,
                          const unsigned char r1, const unsigned char g1, const unsigned char b1)
 {
-   double diff_r = /*0.30 */ (r0 - r1);
-   double diff_g = /*0.59 */ (g0 - g1);
-   double diff_b = /*0.11 */ (b0 - b1);
+   const double diff_r = /*0.30 */ (r0 - r1);
+   const double diff_g = /*0.59 */ (g0 - g1);
+   const double diff_b = /*0.11 */ (b0 - b1);
 
    return std::sqrt((diff_r * diff_r) + (diff_g * diff_g) + (diff_b * diff_b));
 }
@@ -2601,16 +2601,21 @@ double weighted_distance(const rgb_store c0, const rgb_store c1)
 }
 
 template <typename Iterator>
-rgb_store find_nearest_color(const rgb_store c, const Iterator begin, const Iterator end)
+rgb_store find_nearest_color(const rgb_store& c, const Iterator begin, const Iterator end)
 {
    if (0 == std::distance(begin,end))
       return c;
 
-   double min_d     = weighted_distance(c,*begin);
+   double min_d     = std::numeric_limits<double>::max();
    rgb_store result = *begin;
 
-   for (Iterator itr = begin + 1; itr != end; ++itr)
+   for (Iterator itr = begin; itr != end; ++itr)
    {
+      if (c == (*itr))
+      {
+         return (*itr);
+      }
+
       double curr_d = weighted_distance(c,*itr);
 
       if (curr_d < min_d)
@@ -2625,28 +2630,33 @@ rgb_store find_nearest_color(const rgb_store c, const Iterator begin, const Iter
 
 template <template <typename,typename> class Sequence,
           typename Allocator>
-rgb_store find_nearest_color(const rgb_store c, const Sequence<rgb_store,Allocator>& seq)
+rgb_store find_nearest_color(const rgb_store& c, const Sequence<rgb_store,Allocator>& seq)
 {
    return find_nearest_color(c, seq.begin(),seq.end());
 }
 
 template <std::size_t N>
-rgb_store find_nearest_color(const rgb_store c, const rgb_store (&colors)[N])
+rgb_store find_nearest_color(const rgb_store& c, const rgb_store (&colors)[N])
 {
    return find_nearest_color(c, colors, colors + N);
 }
 
-double find_nearest_wave_length(const rgb_store c)
+double find_nearest_wave_length(const rgb_store& c, const double increment = 0.001)
 {
-   const double max_wave_length =  800; //800nm
+   const double max_wave_length = 800.0; //800nm
 
    double min_wave_length = 0.0;
    double min_d           = std::numeric_limits<double>::max();
 
-   for (double i = 0; i < max_wave_length; i += 0.001)
+   for (double i = 0.0; i < max_wave_length; i += increment)
    {
       rgb_store curr_rgb = convert_wave_length_nm_to_rgb(i);
       double    curr_d   = weighted_distance(c,curr_rgb);
+
+      if (c == curr_rgb)
+      {
+         return i;
+      }
 
       if (curr_d <= min_d)
       {
