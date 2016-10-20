@@ -107,7 +107,7 @@ int main()
 ----
 
 #### Simple Example 3
-The following example will render the Mandelbrot set fractal and save the generated bitmap as 'mandelbrot_set.bmp'.
+The following example will render the Mandelbrot set fractal and save the generated bitmap as *'mandelbrot_set.bmp'*.
 
 ```c++
 #include <cmath>
@@ -177,7 +177,8 @@ int main()
 ----
 
 #### Simple Example 4
-The following example will render the Julia set fractal and save the generated bitmap as 'julia_set.bmp'.
+The following example will render the Julia set fractal and save the generated bitmap as *'julia_set.bmp'*.
+
 ```c++
 #include <cmath>
 #include "bitmap_image.hpp"
@@ -232,3 +233,92 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/julia_set.png?raw=true "C++ Bitmap Library Julia Set Fractal - Copyright Arash Partow")
+
+#### Simple Example 5
+The following example will render a baseline image using a combination of plasma and checkered pattern effects.
+Then proceed to apply a lens distortion upon the base image. Finally both the base and the lens distorted versions
+of the images will be saved to file as *'base.bmp'* and *'lens_effect.bmp'* respectively.
+
+```c++
+#include <algorithm>
+#include <cmath>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image base(600,600);
+
+   base.clear();
+
+   {
+      const double c1 = 0.8;
+      const double c2 = 0.4;
+      const double c3 = 0.2;
+      const double c4 = 0.6;
+
+      ::srand(0xA5AA5AA5);
+      plasma(base,0,0,base.width(),base.height(),c1,c2,c3,c4,3.0,jet_colormap);
+      checkered_pattern(30,30,230,bitmap_image::  red_plane,base);
+      checkered_pattern(30,30,  0,bitmap_image::green_plane,base);
+      checkered_pattern(30,30,100,bitmap_image:: blue_plane,base);
+   }
+
+   bitmap_image lens_image(base.width(),base.height());
+
+   lens_image = base;
+
+   double lens_center_x = base.width () / 2;
+   double lens_center_y = base.height() / 2;
+   double lens_radius   = std::min(base.width(), base.height()) / 4;
+   double lens_factor   = 0.7;
+
+   for (unsigned int x = 0; x < base.width(); x++)
+   {
+      for (unsigned int y = 0; y < base.height(); y++)
+      {
+         double dx = x - lens_center_x;
+         double dy = y - lens_center_y;
+
+         double distance = std::sqrt((dx * dx) + (dy * dy));
+
+         int sx = x;
+         int sy = y;
+
+         if (distance <= lens_radius)
+         {
+            double radius     = distance / lens_radius;
+            double angle      = std::atan2(dy, dx);
+            double distortion = std::pow(radius, lens_factor) * distance;
+
+            double curr_x = distortion * std::cos(angle) + lens_center_x;
+            double curr_y = distortion * std::sin(angle) + lens_center_y;
+
+            sx += static_cast<int>(curr_x - x);
+            sy += static_cast<int>(curr_y - y);
+
+            if (
+                 (sx >= 0)                 &&
+                 (sy >= 0)                 &&
+                 (sx < (int)base.width ()) &&
+                 (sy < (int)base.height())
+               )
+            {
+               unsigned char   red;
+               unsigned char green;
+               unsigned char  blue;
+
+               base      .get_pixel(sx,sy,red,green,blue);
+               lens_image.set_pixel( x, y,red,green,blue);
+            }
+         }
+      }
+   }
+
+   base      .save_image("base.bmp"       );
+   lens_image.save_image("lens_effect.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/lens_effect.png?raw=true "C++ Bitmap Library Magnifying Lens Effect Example - Copyright Arash Partow")
