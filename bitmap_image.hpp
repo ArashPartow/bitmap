@@ -2577,9 +2577,13 @@ rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
    const double gamma         =   0.8;
    const double intensity_max = 255.0;
 
+   #define round(d) std::floor(d + 0.5)
+
    result.red   = static_cast<unsigned char>((red   == 0.0) ? red   : round(intensity_max * std::pow(red   * factor,gamma)));
    result.green = static_cast<unsigned char>((green == 0.0) ? green : round(intensity_max * std::pow(green * factor,gamma)));
    result.blue  = static_cast<unsigned char>((blue  == 0.0) ? blue  : round(intensity_max * std::pow(blue  * factor,gamma)));
+
+   #undef round
 
    return result;
 }

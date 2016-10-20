@@ -17,6 +17,7 @@
 */
 
 
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -473,13 +474,13 @@ void test18()
       const rgb_store* colormap[9] = {
                                        autumn_colormap,
                                        copper_colormap,
-                                       gray_colormap,
-                                       hot_colormap,
-                                       hsv_colormap,
-                                       jet_colormap,
-                                       prism_colormap,
-                                       vga_colormap,
-                                       yarg_colormap
+                                         gray_colormap,
+                                          hot_colormap,
+                                          hsv_colormap,
+                                          jet_colormap,
+                                        prism_colormap,
+                                          vga_colormap,
+                                         yarg_colormap
                                      };
 
       for (unsigned int i = 0; i < image.width(); ++i)
@@ -579,6 +580,152 @@ void test19()
    }
 }
 
+void test20()
+{
+   const rgb_store* colormap[4] = {
+                                       hsv_colormap,
+                                       jet_colormap,
+                                     prism_colormap,
+                                       vga_colormap
+                                  };
+
+   {
+      bitmap_image fractal_hsv  (1200,800);
+      bitmap_image fractal_jet  (1200,800);
+      bitmap_image fractal_prism(1200,800);
+      bitmap_image fractal_vga  (1200,800);
+
+      fractal_hsv  .clear();
+      fractal_jet  .clear();
+      fractal_prism.clear();
+      fractal_vga  .clear();
+
+      double    cr,    ci;
+      double nextr, nexti;
+      double prevr, previ;
+
+      const unsigned int max_iterations = 1000;
+      const unsigned int width  = fractal_hsv.width ();
+      const unsigned int height = fractal_hsv.height();
+
+      for (unsigned int y = 0; y < height; ++y)
+      {
+         for (unsigned int x = 0; x < width; ++x)
+         {
+            cr = 1.5 * (2.0 * x / width  - 1.0) - 0.5;
+            ci =       (2.0 * y / height - 1.0);
+
+            nextr = nexti = 0;
+            prevr = previ = 0;
+
+            for (unsigned int i = 0; i < max_iterations; i++)
+            {
+               prevr = nextr;
+               previ = nexti;
+
+               nextr =     prevr * prevr - previ * previ + cr;
+               nexti = 2 * prevr * previ + ci;
+
+               if (((nextr * nextr) + (nexti * nexti)) > 4)
+               {
+                  if (max_iterations != i)
+                  {
+                     double z = sqrt(nextr * nextr + nexti * nexti);
+
+                     #define log2(x) (std::log(1.0 * x) / std::log(2.0))
+
+                     unsigned int index = static_cast<unsigned int>
+                        (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
+                     #undef log2
+
+                     rgb_store c0 = colormap[0][index];
+                     rgb_store c1 = colormap[1][index];
+                     rgb_store c2 = colormap[2][index];
+                     rgb_store c3 = colormap[3][index];
+
+                     fractal_hsv  .set_pixel(x, y, c0.red, c0.green, c0.blue);
+                     fractal_jet  .set_pixel(x, y, c1.red, c1.green, c1.blue);
+                     fractal_prism.set_pixel(x, y, c2.red, c2.green, c2.blue);
+                     fractal_vga  .set_pixel(x, y, c3.red, c3.green, c3.blue);
+                  }
+
+                  break;
+               }
+            }
+         }
+      }
+
+      fractal_hsv  .save_image("test20_mandelbrot_set_hsv.bmp"  );
+      fractal_jet  .save_image("test20_mandelbrot_set_jet.bmp"  );
+      fractal_prism.save_image("test20_mandelbrot_set_prism.bmp");
+      fractal_vga  .save_image("test20_mandelbrot_set_vga.bmp"  );
+   }
+
+   {
+      bitmap_image fractal_hsv  (1200,800);
+      bitmap_image fractal_jet  (1200,800);
+      bitmap_image fractal_prism(1200,800);
+      bitmap_image fractal_vga  (1200,800);
+
+      fractal_hsv  .clear();
+      fractal_jet  .clear();
+      fractal_prism.clear();
+      fractal_vga  .clear();
+
+      const unsigned int max_iterations = 300;
+      const unsigned int width  = fractal_hsv.width ();
+      const unsigned int height = fractal_hsv.height();
+
+      const double cr = -0.70000;
+      const double ci =  0.27015;
+
+      double prevr, previ;
+
+      for (unsigned int y = 0; y < height; ++y)
+      {
+         for (unsigned int x = 0; x < width; ++x)
+         {
+            double nextr = 1.5 * (2.0 * x / width  - 1.0);
+            double nexti =       (2.0 * y / height - 1.0);
+
+            for (unsigned int i = 0; i < max_iterations; i++)
+            {
+               prevr = nextr;
+               previ = nexti;
+
+               nextr =     prevr * prevr - previ * previ + cr;
+               nexti = 2 * prevr * previ + ci;
+
+               if (((nextr * nextr) + (nexti * nexti)) > 4)
+               {
+                  if (max_iterations != i)
+                  {
+                     unsigned int index = static_cast<int>((1000.0 * i) / max_iterations);
+
+                     rgb_store c0 = colormap[0][index];
+                     rgb_store c1 = colormap[1][index];
+                     rgb_store c2 = colormap[2][index];
+                     rgb_store c3 = colormap[3][index];
+
+                     fractal_hsv  .set_pixel(x, y, c0.red, c0.green, c0.blue);
+                     fractal_jet  .set_pixel(x, y, c1.red, c1.green, c1.blue);
+                     fractal_prism.set_pixel(x, y, c2.red, c2.green, c2.blue);
+                     fractal_vga  .set_pixel(x, y, c3.red, c3.green, c3.blue);
+                  }
+
+                  break;
+               }
+            }
+         }
+      }
+
+      fractal_hsv  .save_image("test20_julia_set_hsv.bmp"  );
+      fractal_jet  .save_image("test20_julia_set_jet.bmp"  );
+      fractal_prism.save_image("test20_julia_set_prism.bmp");
+      fractal_vga  .save_image("test20_julia_set_vga.bmp"  );
+   }
+}
+
 int main()
 {
    test01();
@@ -600,6 +747,7 @@ int main()
    test17();
    test18();
    test19();
+   test20();
    return 0;
 }
 

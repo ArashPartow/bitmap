@@ -30,6 +30,7 @@ The C++ Bitmap Library implementation is compatible with the following C++ compi
 * Microsoft Visual Studio C++ Compiler (8.1+)
 * IBM XL C/C++ (10.x+)
 
+----
 
 #### Simple Example 1
 The following example will open a bitmap image called *'input.bmp'* and count the number of pixels that have a red channel value of 111 and larger, then proceed to print the count to stdout.
@@ -72,6 +73,7 @@ int main()
 }
 ```
 
+----
 
 #### Simple Example 2
 The following example will create a bitmap of dimensions 200x200 pixels, set the background color to orange, then proceed to draw a circle centered in the middle of the bitmap of radius 50 pixels and of color red then a rectangle centered in the middle of the bitmap with a width and height of 100 pixels and of color blue. The newly constructed image will be saved to disk with the name: *'output.bmp'*.
@@ -102,3 +104,131 @@ int main()
 }
 ```
 
+----
+
+#### Simple Example 3
+The following example will render the Mandelbrot set fractal and save the generated bitmap as 'mandelbrot_set.bmp'.
+
+```c++
+#include <cmath>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image fractal(600,400);
+
+   fractal.clear();
+
+   double    cr,    ci;
+   double nextr, nexti;
+   double prevr, previ;
+
+   const unsigned int max_iterations = 1000;
+
+   for (unsigned int y = 0; y < fractal.height(); ++y)
+   {
+      for (unsigned int x = 0; x < fractal.width(); ++x)
+      {
+         cr = 1.5 * (2.0 * x / fractal.width () - 1.0) - 0.5;
+         ci =       (2.0 * y / fractal.height() - 1.0);
+
+         nextr = nexti = 0;
+         prevr = previ = 0;
+
+         for (unsigned int i = 0; i < max_iterations; i++)
+         {
+            prevr = nextr;
+            previ = nexti;
+
+            nextr =     prevr * prevr - previ * previ + cr;
+            nexti = 2 * prevr * previ + ci;
+
+            if (((nextr * nextr) + (nexti * nexti)) > 4)
+            {
+               if (max_iterations != i)
+               {
+                  using namespace std;
+
+                  double z = sqrt(nextr * nextr + nexti * nexti);
+
+                  //https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_.28smooth.29_coloring
+                  unsigned int index = static_cast<unsigned int>
+                     (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
+
+                  rgb_store c = jet_colormap[index];
+
+                  fractal.set_pixel(x, y, c.red, c.green, c.blue);
+               }
+
+               break;
+            }
+         }
+      }
+   }
+
+   fractal.save_image("mandelbrot_set.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/mandelbrot_set.png?raw=true "C++ Bitmap Library Mandelbrot Set Fractal - Copyright Arash Partow")
+
+----
+
+#### Simple Example 4
+The following example will render the Julia set fractal and save the generated bitmap as 'julia_set.bmp'.
+```c++
+#include <cmath>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image fractal(600,400);
+
+   fractal.clear();
+
+   const unsigned int max_iterations = 300;
+
+   const double cr = -0.70000;
+   const double ci =  0.27015;
+
+   double prevr, previ;
+
+   for (unsigned int y = 0; y < fractal.height(); ++y)
+   {
+      for (unsigned int x = 0; x < fractal.width(); ++x)
+      {
+         double nextr = 1.5 * (2.0 * x / fractal.width () - 1.0);
+         double nexti =       (2.0 * y / fractal.height() - 1.0);
+
+         for (unsigned int i = 0; i < max_iterations; i++)
+         {
+            prevr = nextr;
+            previ = nexti;
+
+            nextr =     prevr * prevr - previ * previ + cr;
+            nexti = 2 * prevr * previ + ci;
+
+            if (((nextr * nextr) + (nexti * nexti)) > 4)
+            {
+               if (max_iterations != i)
+               {
+                  rgb_store c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
+
+                  fractal.set_pixel(x, y, c.red, c.green, c.blue);
+               }
+
+               break;
+            }
+         }
+      }
+   }
+
+   fractal.save_image("julia_set.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/julia_set.png?raw=true "C++ Bitmap Library Julia Set Fractal - Copyright Arash Partow")
