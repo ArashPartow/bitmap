@@ -507,7 +507,7 @@ void test18()
          for (std::size_t j = 0; j < bar_width; ++j)
          {
             draw.pen_color(palette_colormap[i].red,palette_colormap[i].green,palette_colormap[i].blue);
-            draw.vertical_line_segment(0,image.height(),i * bar_width + j);
+            draw.vertical_line_segment(0, image.height(), static_cast<int>(i * bar_width + j));
          }
       }
 
@@ -528,9 +528,9 @@ void test19()
 
       canvas.rectangle(canvas.min_x(), canvas.min_y(), canvas.max_x(), canvas.max_y());
 
-      canvas.horiztonal_line_segment(canvas.min_x(), canvas.max_x(), -400);
+      canvas.horiztonal_line_segment(canvas.min_x(), canvas.max_x(), -400.0);
 
-      canvas.line_segment(-500, 600, 600, -500);
+      canvas.line_segment(-500.0, 600.0, 600.0, -500.0);
 
       canvas.pen_width(3);
 
@@ -540,7 +540,7 @@ void test19()
 
          canvas.pen_color(palette_colormap[c_idx].red, palette_colormap[c_idx].green, palette_colormap[c_idx].blue);
 
-         canvas.circle(0, 0, 3 * i);
+         canvas.circle(0.0, 0.0, 3.0 * i);
       }
 
       canvas.image().save_image("test19_cartesian_canvas01.bmp");
@@ -589,11 +589,14 @@ void test20()
                                        vga_colormap
                                   };
 
+   const unsigned int fractal_width  = 1200;
+   const unsigned int fractal_height =  800;
+
    {
-      bitmap_image fractal_hsv  (1200,800);
-      bitmap_image fractal_jet  (1200,800);
-      bitmap_image fractal_prism(1200,800);
-      bitmap_image fractal_vga  (1200,800);
+      bitmap_image fractal_hsv  (fractal_width,fractal_height);
+      bitmap_image fractal_jet  (fractal_width,fractal_height);
+      bitmap_image fractal_prism(fractal_width,fractal_height);
+      bitmap_image fractal_vga  (fractal_width,fractal_height);
 
       fractal_hsv  .clear();
       fractal_jet  .clear();
@@ -605,15 +608,13 @@ void test20()
       double prevr, previ;
 
       const unsigned int max_iterations = 1000;
-      const unsigned int width  = fractal_hsv.width ();
-      const unsigned int height = fractal_hsv.height();
 
-      for (unsigned int y = 0; y < height; ++y)
+      for (unsigned int y = 0; y < fractal_height; ++y)
       {
-         for (unsigned int x = 0; x < width; ++x)
+         for (unsigned int x = 0; x < fractal_width; ++x)
          {
-            cr = 1.5 * (2.0 * x / width  - 1.0) - 0.5;
-            ci =       (2.0 * y / height - 1.0);
+            cr = 1.5 * (2.0 * x / fractal_width  - 1.0) - 0.5;
+            ci =       (2.0 * y / fractal_height - 1.0);
 
             nextr = nexti = 0;
             prevr = previ = 0;
@@ -662,10 +663,10 @@ void test20()
    }
 
    {
-      bitmap_image fractal_hsv  (1200,800);
-      bitmap_image fractal_jet  (1200,800);
-      bitmap_image fractal_prism(1200,800);
-      bitmap_image fractal_vga  (1200,800);
+      bitmap_image fractal_hsv  (fractal_width,fractal_height);
+      bitmap_image fractal_jet  (fractal_width,fractal_height);
+      bitmap_image fractal_prism(fractal_width,fractal_height);
+      bitmap_image fractal_vga  (fractal_width,fractal_height);
 
       fractal_hsv  .clear();
       fractal_jet  .clear();
@@ -673,20 +674,18 @@ void test20()
       fractal_vga  .clear();
 
       const unsigned int max_iterations = 300;
-      const unsigned int width  = fractal_hsv.width ();
-      const unsigned int height = fractal_hsv.height();
 
       const double cr = -0.70000;
       const double ci =  0.27015;
 
       double prevr, previ;
 
-      for (unsigned int y = 0; y < height; ++y)
+      for (unsigned int y = 0; y < fractal_height; ++y)
       {
-         for (unsigned int x = 0; x < width; ++x)
+         for (unsigned int x = 0; x < fractal_width; ++x)
          {
-            double nextr = 1.5 * (2.0 * x / width  - 1.0);
-            double nexti =       (2.0 * y / height - 1.0);
+            double nextr = 1.5 * (2.0 * x / fractal_width  - 1.0);
+            double nexti =       (2.0 * y / fractal_height - 1.0);
 
             for (unsigned int i = 0; i < max_iterations; i++)
             {
