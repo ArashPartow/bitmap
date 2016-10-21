@@ -33,7 +33,9 @@ The C++ Bitmap Library implementation is compatible with the following C++ compi
 ----
 
 #### Simple Example 1
-The following example will open a bitmap image called *'input.bmp'* and count the number of pixels that have a red channel value of 111 and larger, then proceed to print the count to stdout.
+The following example will open a bitmap image called *'input.bmp'* and count the
+number of pixels that have a red channel value of 111 and larger, then proceed
+to print the count to stdout.
 
 ```c++
 #include <cstdio>
@@ -76,7 +78,11 @@ int main()
 ----
 
 #### Simple Example 2
-The following example will create a bitmap of dimensions 200x200 pixels, set the background color to orange, then proceed to draw a circle centered in the middle of the bitmap of radius 50 pixels and of color red then a rectangle centered in the middle of the bitmap with a width and height of 100 pixels and of color blue. The newly constructed image will be saved to disk with the name: *'output.bmp'*.
+The following example will create a bitmap of dimensions 200x200 pixels, set the
+background color to orange, then proceed to draw a circle centered in the middle
+of the bitmap of radius 50 pixels and of color red then a rectangle centered in
+the middle of the bitmap with a width and height of 100 pixels and of color blue.
+The newly constructed image will be saved to disk with the name: *'output.bmp'*.
 
 ```c++
 #include "bitmap_image.hpp"
@@ -172,12 +178,13 @@ int main()
 }
 ```
 
-![ScreenShot](http://www.partow.net/programming/bitmap/images/mandelbrot_set.png?raw=true "C++ Bitmap Library Mandelbrot Set Fractal - Copyright Arash Partow")
+![ScreenShot](http://www.partow.net/programming/bitmap/images/mandelbrot_set.png?raw=true "C++ Bitmap Library Mandelbrot Set Fractal - By Arash Partow")
 
 ----
 
 #### Simple Example 4
-The following example will render the Julia set fractal and save the generated bitmap as *'julia_set.bmp'*.
+The following example will render the Julia set fractal and save the
+generated bitmap as *'julia_set.bmp'*.
 
 ```c++
 #include <cmath>
@@ -232,12 +239,13 @@ int main()
 }
 ```
 
-![ScreenShot](http://www.partow.net/programming/bitmap/images/julia_set.png?raw=true "C++ Bitmap Library Julia Set Fractal - Copyright Arash Partow")
+![ScreenShot](http://www.partow.net/programming/bitmap/images/julia_set.png?raw=true "C++ Bitmap Library Julia Set Fractal - By Arash Partow")
 
 #### Simple Example 5
-The following example will render a baseline image using a combination of plasma and checkered pattern effects.
-Then proceed to apply a lens distortion upon the base image. Finally both the base and the lens distorted versions
-of the images will be saved to file as *'base.bmp'* and *'lens_effect.bmp'* respectively.
+The following example will render a baseline image using a combination of plasma
+and checkered pattern effects. Then proceed to apply a lens distortion upon the
+base image. Finally both the base and the lens distorted versions of the images
+will be saved to file as *'base.bmp'* and *'lens_effect.bmp'* respectively.
 
 ```c++
 #include <algorithm>
@@ -321,4 +329,88 @@ int main()
 }
 ```
 
-![ScreenShot](http://www.partow.net/programming/bitmap/images/lens_effect.png?raw=true "C++ Bitmap Library Magnifying Lens Effect Example - Copyright Arash Partow")
+![ScreenShot](http://www.partow.net/programming/bitmap/images/lens_effect.png?raw=true "C++ Bitmap Library Magnifying Lens Effect Example - By Arash Partow")
+
+#### Simple Example 6
+The following example will render a baseline image using a combination of plasma and
+checkered pattern effects. Then proceed to apply a swirl distortion upon the base image.
+Finally both the base and the swirl distorted versions of the images will be saved to
+file as *'base.bmp'* and *'swirl_effect.bmp'* respectively.
+
+```c++
+#include <algorithm>
+#include <cmath>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image base(600,600);
+
+   base.clear();
+
+   {
+      const double c1 = 0.8;
+      const double c2 = 0.4;
+      const double c3 = 0.2;
+      const double c4 = 0.6;
+
+      ::srand(0x5A5A5A5A);
+      plasma(base,0,0,base.width(),base.height(),c1,c2,c3,c4,7.0,jet_colormap);
+      checkered_pattern(20,20,250,bitmap_image::  red_plane,base);
+      checkered_pattern(20,20, 10,bitmap_image::green_plane,base);
+      checkered_pattern(20,20, 10,bitmap_image:: blue_plane,base);
+   }
+
+   bitmap_image swirl_image(base.width(),base.height());
+
+   swirl_image.clear();
+
+   double swirl_center_x = base.width () / 2;
+   double swirl_center_y = base.height() / 2;
+   double swirl_radius   = std::min(base.width(), base.height()) / 3;
+
+   const double pi_ = 3.1415926535897932384626433832795028841971;
+   const double swirl_angle = pi_ / 3.0;
+
+   for (unsigned int x = 0; x < base.width(); x++)
+   {
+      for (unsigned int y = 0; y < base.height(); y++)
+      {
+         double dx = x - swirl_center_x;
+         double dy = y - swirl_center_y;
+
+         double distance = std::sqrt((dx * dx) + (dy * dy));
+
+         double angle = swirl_angle * (distance / swirl_radius);
+
+         const double cosa = std::cos(angle);
+         const double sina = std::sin(angle);
+
+         int sx = static_cast<int>(dx * cosa - dy * sina + swirl_center_x);
+         int sy = static_cast<int>(dx * sina + dy * cosa + swirl_center_y);
+
+         if (
+              (sx >= 0)                 &&
+              (sy >= 0)                 &&
+              (sx < (int)base.width ()) &&
+              (sy < (int)base.height())
+            )
+         {
+            unsigned char   red;
+            unsigned char green;
+            unsigned char  blue;
+
+            base      .get_pixel(sx,sy,red,green,blue);
+            swirl_image.set_pixel( x, y,red,green,blue);
+         }
+      }
+   }
+
+   base       .save_image("base.bmp"        );
+   swirl_image.save_image("swirl_effect.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/swirl_effect.png?raw=true "C++ Bitmap Library Swirl Effect Example - By Arash Partow")
