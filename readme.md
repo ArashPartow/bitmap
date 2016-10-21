@@ -289,20 +289,14 @@ int main()
 
          double distance = std::sqrt((dx * dx) + (dy * dy));
 
-         int sx = x;
-         int sy = y;
-
          if (distance <= lens_radius)
          {
             double radius     = distance / lens_radius;
             double angle      = std::atan2(dy, dx);
             double distortion = std::pow(radius, lens_factor) * distance;
 
-            double curr_x = distortion * std::cos(angle) + lens_center_x;
-            double curr_y = distortion * std::sin(angle) + lens_center_y;
-
-            sx += static_cast<int>(curr_x - x);
-            sy += static_cast<int>(curr_y - y);
+            int sx = static_cast<int>(distortion * std::cos(angle) + lens_center_x);
+            int sy = static_cast<int>(distortion * std::sin(angle) + lens_center_y);
 
             if (
                  (sx >= 0)                 &&
