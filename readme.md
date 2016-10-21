@@ -400,7 +400,7 @@ int main()
             unsigned char green;
             unsigned char  blue;
 
-            base      .get_pixel(sx,sy,red,green,blue);
+            base       .get_pixel(sx,sy,red,green,blue);
             swirl_image.set_pixel( x, y,red,green,blue);
          }
       }
