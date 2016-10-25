@@ -1555,21 +1555,21 @@ struct rgb_t
    unsigned char  blue;
 };
 
-bool operator==(const rgb_t& c0, const rgb_t& c1)
+inline bool operator==(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   == c1  .red) &&
           (c0.green == c1.green) &&
           (c0.blue  == c1 .blue);
 }
 
-bool operator!=(const rgb_t& c0, const rgb_t& c1)
+inline bool operator!=(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   != c1  .red) ||
           (c0.green != c1.green) ||
           (c0.blue  != c1 .blue);
 }
 
-std::size_t hamming_distance(const rgb_t& c0, const rgb_t& c1)
+inline std::size_t hamming_distance(const rgb_t& c0, const rgb_t& c1)
 {
    std::size_t result = 0;
 
@@ -2592,7 +2592,7 @@ private:
    image_drawer draw_;
 };
 
-rgb_t convert_wave_length_nm_to_rgb(const double wave_length_nm)
+inline rgb_t convert_wave_length_nm_to_rgb(const double wave_length_nm)
 {
    // Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
    double red   = 0.0;
@@ -2663,8 +2663,8 @@ rgb_t convert_wave_length_nm_to_rgb(const double wave_length_nm)
    return result;
 }
 
-double weighted_distance(const unsigned char r0, const unsigned char g0, const unsigned char b0,
-                         const unsigned char r1, const unsigned char g1, const unsigned char b1)
+inline double weighted_distance(const unsigned char r0, const unsigned char g0, const unsigned char b0,
+                                const unsigned char r1, const unsigned char g1, const unsigned char b1)
 {
    const double diff_r = /*0.30 */ (r0 - r1);
    const double diff_g = /*0.59 */ (g0 - g1);
@@ -2673,14 +2673,14 @@ double weighted_distance(const unsigned char r0, const unsigned char g0, const u
    return std::sqrt((diff_r * diff_r) + (diff_g * diff_g) + (diff_b * diff_b));
 }
 
-double weighted_distance(const rgb_t c0, const rgb_t c1)
+inline double weighted_distance(const rgb_t c0, const rgb_t c1)
 {
    return weighted_distance(c0.red, c0.green, c0.blue,
                             c1.red, c1.green, c1.blue);
 }
 
 template <typename Iterator>
-rgb_t find_nearest_color(const rgb_t& c, const Iterator begin, const Iterator end)
+inline rgb_t find_nearest_color(const rgb_t& c, const Iterator begin, const Iterator end)
 {
    if (0 == std::distance(begin,end))
       return c;
@@ -2709,18 +2709,18 @@ rgb_t find_nearest_color(const rgb_t& c, const Iterator begin, const Iterator en
 
 template <template <typename,typename> class Sequence,
           typename Allocator>
-rgb_t find_nearest_color(const rgb_t& c, const Sequence<rgb_t,Allocator>& seq)
+inline rgb_t find_nearest_color(const rgb_t& c, const Sequence<rgb_t,Allocator>& seq)
 {
    return find_nearest_color(c, seq.begin(),seq.end());
 }
 
 template <std::size_t N>
-rgb_t find_nearest_color(const rgb_t& c, const rgb_t (&colors)[N])
+inline rgb_t find_nearest_color(const rgb_t& c, const rgb_t (&colors)[N])
 {
    return find_nearest_color(c, colors, colors + N);
 }
 
-double find_nearest_wave_length(const rgb_t& c, const double increment = 0.001)
+inline double find_nearest_wave_length(const rgb_t& c, const double increment = 0.001)
 {
    const double max_wave_length = 800.0; //800nm
 
