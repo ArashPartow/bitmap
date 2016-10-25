@@ -164,7 +164,7 @@ int main()
                   unsigned int index = static_cast<unsigned int>
                      (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
 
-                  rgb_store c = jet_colormap[index];
+                  rgb_t c = jet_colormap[index];
 
                   fractal.set_pixel(x, y, c.red, c.green, c.blue);
                }
@@ -225,7 +225,7 @@ int main()
             {
                if (max_iterations != i)
                {
-                  rgb_store c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
+                  rgb_t c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
 
                   fractal.set_pixel(x, y, c.red, c.green, c.blue);
                }
