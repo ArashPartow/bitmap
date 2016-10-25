@@ -318,18 +318,37 @@ public:
       return true;
    }
 
-   void reflective_image(bitmap_image& image)
+   void reflective_image(bitmap_image& image, const bool include_diagnols = false)
    {
       image.setwidth_height(3 * width_, 3 * height_,true);
-      image.copy_from(*this,width_,height_);
+
+      image.copy_from(*this, width_, height_);
+
       vertical_flip();
-      image.copy_from(*this,width_,0);
-      image.copy_from(*this,width_,2 * height_);
+
+      image.copy_from(*this, width_, 0);
+      image.copy_from(*this, width_, 2 * height_);
+
       vertical_flip();
       horizontal_flip();
-      image.copy_from(*this,0,height_);
-      image.copy_from(*this,2 * width_,height_);
+
+      image.copy_from(*this, 0, height_);
+      image.copy_from(*this, 2 * width_, height_);
+
       horizontal_flip();
+
+      if (include_diagnols)
+      {
+         bitmap_image tile = *this;
+
+         tile.vertical_flip();
+         tile.horizontal_flip();
+
+         image.copy_from(tile, 0 , 0);
+         image.copy_from(tile, 2 * width_, 0);
+         image.copy_from(tile, 2 * width_, 2 * height_);
+         image.copy_from(tile, 0, 2 * height_);
+      }
    }
 
    inline unsigned int width() const
@@ -1529,28 +1548,28 @@ private:
    std::vector<unsigned char> data_;
 };
 
-struct rgb_store
+struct rgb_t
 {
-   unsigned char red;
+   unsigned char   red;
    unsigned char green;
-   unsigned char blue;
+   unsigned char  blue;
 };
 
-bool operator==(const rgb_store& c0, const rgb_store& c1)
+bool operator==(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   == c1  .red) &&
           (c0.green == c1.green) &&
           (c0.blue  == c1 .blue);
 }
 
-bool operator!=(const rgb_store& c0, const rgb_store& c1)
+bool operator!=(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   != c1  .red) ||
           (c0.green != c1.green) ||
           (c0.blue  != c1 .blue);
 }
 
-std::size_t hamming_distance(const rgb_store& c0, const rgb_store& c1)
+std::size_t hamming_distance(const rgb_t& c0, const rgb_t& c1)
 {
    std::size_t result = 0;
 
@@ -1559,6 +1578,62 @@ std::size_t hamming_distance(const rgb_store& c0, const rgb_store& c1)
    if (c0.blue  != c1 .blue) ++result;
 
    return result;
+}
+
+inline rgb_t make_colour(const unsigned int& red, const unsigned int& green, const unsigned int& blue)
+{
+   rgb_t result;
+
+   result.red   = static_cast<unsigned char>(red  );
+   result.green = static_cast<unsigned char>(green);
+   result.blue  = static_cast<unsigned char>(blue );
+
+   return result;
+}
+
+template <typename OutputIterator>
+inline void generate_colours(const std::size_t& steps, const rgb_t c0, const rgb_t& c1, OutputIterator out)
+{
+   double dr = ((double)c1.red   -  (double)c0.red   ) / steps;
+   double dg = ((double)c1.green -  (double)c0.green ) / steps;
+   double db = ((double)c1.blue  -  (double)c0.blue  ) / steps;
+
+   for (std::size_t i = 0; i < steps; ++i)
+   {
+      rgb_t c;
+
+      c.red   = static_cast<unsigned char>(c0.red   + (i * dr));
+      c.green = static_cast<unsigned char>(c0.green + (i * dg));
+      c.blue  = static_cast<unsigned char>(c0.blue  + (i * db));
+
+      *(out++) = c;
+   }
+}
+
+template <typename ResponseImage, typename Palette>
+inline std::size_t convert_rsp_to_image(const ResponseImage& resp_image, const Palette& palette, bitmap_image& image)
+{
+   if (
+        (resp_image.width () > image.width ()) ||
+        (resp_image.height() > image.height())
+      )
+      return 0;
+
+   for (std::size_t y = 0; y < resp_image.height(); ++y)
+   {
+      for (std::size_t x = 0; x < resp_image.width(); ++x)
+      {
+         const double v = resp_image(x,y);
+
+         unsigned int index = static_cast<unsigned int>((v < 0) ? 0 : v > (palette.size()) ? (palette.size() - 1) : v);
+
+         rgb_t c = palette[index];
+
+         image.set_pixel(x,y,c.red,c.green,c.blue);
+      }
+   }
+
+   return (resp_image.width() * resp_image.height());
 }
 
 inline void rgb_to_ycbcr(const unsigned int& length, double* red, double* green, double* blue,
@@ -1810,7 +1885,7 @@ inline void plasma(bitmap_image& image,
                    const double& c1,    const double& c2,
                    const double& c3,    const double& c4,
                    const double& roughness = 3.0,
-                   const rgb_store colormap[] = 0)
+                   const rgb_t colormap[] = 0)
 {
    // Note: c1,c2,c3,c4 -> [0.0,1.0]
 
@@ -1836,7 +1911,7 @@ inline void plasma(bitmap_image& image,
    }
    else
    {
-      rgb_store color = colormap[static_cast<unsigned int>(1000.0 * ((c1 + c2 + c3 + c4) / 4.0)) % 1000];
+      rgb_t color = colormap[static_cast<unsigned int>(1000.0 * ((c1 + c2 + c3 + c4) / 4.0)) % 1000];
       image.set_pixel(static_cast<unsigned int>(x),static_cast<unsigned int>(y),color.red,color.green,color.blue);
    }
 }
@@ -1889,7 +1964,7 @@ inline void hierarchical_psnr_r(const double& x,     const double& y,
                                 const bitmap_image& image1,
                                       bitmap_image& image2,
                                 const double& threshold,
-                                const rgb_store colormap[])
+                                const rgb_t colormap[])
 {
    if ((width <= 4.0) || (height <= 4.0))
    {
@@ -1903,7 +1978,7 @@ inline void hierarchical_psnr_r(const double& x,     const double& y,
 
       if (psnr < threshold)
       {
-         rgb_store c = colormap[static_cast<unsigned int>(1000.0 * (1.0 - (psnr / threshold)))];
+         rgb_t c = colormap[static_cast<unsigned int>(1000.0 * (1.0 - (psnr / threshold)))];
 
          image2.set_region(
                             static_cast<unsigned int>(x),
@@ -1926,7 +2001,7 @@ inline void hierarchical_psnr_r(const double& x,     const double& y,
    }
 }
 
-inline void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_store colormap[])
+inline void hierarchical_psnr(bitmap_image& image1,bitmap_image& image2, const double threshold, const rgb_t colormap[])
 {
    if (
         (image1.width()  != image2.width ()) ||
@@ -2517,7 +2592,7 @@ private:
    image_drawer draw_;
 };
 
-rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
+rgb_t convert_wave_length_nm_to_rgb(const double wave_length_nm)
 {
    // Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
    double red   = 0.0;
@@ -2572,7 +2647,7 @@ rgb_store convert_wave_length_nm_to_rgb(const double wave_length_nm)
    else
       factor = 0.0;
 
-   rgb_store result;
+   rgb_t result;
 
    const double gamma         =   0.8;
    const double intensity_max = 255.0;
@@ -2598,20 +2673,20 @@ double weighted_distance(const unsigned char r0, const unsigned char g0, const u
    return std::sqrt((diff_r * diff_r) + (diff_g * diff_g) + (diff_b * diff_b));
 }
 
-double weighted_distance(const rgb_store c0, const rgb_store c1)
+double weighted_distance(const rgb_t c0, const rgb_t c1)
 {
    return weighted_distance(c0.red, c0.green, c0.blue,
                             c1.red, c1.green, c1.blue);
 }
 
 template <typename Iterator>
-rgb_store find_nearest_color(const rgb_store& c, const Iterator begin, const Iterator end)
+rgb_t find_nearest_color(const rgb_t& c, const Iterator begin, const Iterator end)
 {
    if (0 == std::distance(begin,end))
       return c;
 
    double min_d     = std::numeric_limits<double>::max();
-   rgb_store result = *begin;
+   rgb_t result = *begin;
 
    for (Iterator itr = begin; itr != end; ++itr)
    {
@@ -2634,18 +2709,18 @@ rgb_store find_nearest_color(const rgb_store& c, const Iterator begin, const Ite
 
 template <template <typename,typename> class Sequence,
           typename Allocator>
-rgb_store find_nearest_color(const rgb_store& c, const Sequence<rgb_store,Allocator>& seq)
+rgb_t find_nearest_color(const rgb_t& c, const Sequence<rgb_t,Allocator>& seq)
 {
    return find_nearest_color(c, seq.begin(),seq.end());
 }
 
 template <std::size_t N>
-rgb_store find_nearest_color(const rgb_store& c, const rgb_store (&colors)[N])
+rgb_t find_nearest_color(const rgb_t& c, const rgb_t (&colors)[N])
 {
    return find_nearest_color(c, colors, colors + N);
 }
 
-double find_nearest_wave_length(const rgb_store& c, const double increment = 0.001)
+double find_nearest_wave_length(const rgb_t& c, const double increment = 0.001)
 {
    const double max_wave_length = 800.0; //800nm
 
@@ -2654,7 +2729,7 @@ double find_nearest_wave_length(const rgb_store& c, const double increment = 0.0
 
    for (double i = 0.0; i < max_wave_length; i += increment)
    {
-      rgb_store curr_rgb = convert_wave_length_nm_to_rgb(i);
+      rgb_t curr_rgb = convert_wave_length_nm_to_rgb(i);
       double    curr_d   = weighted_distance(c,curr_rgb);
 
       if (c == curr_rgb)
@@ -2672,6 +2747,64 @@ double find_nearest_wave_length(const rgb_store& c, const double increment = 0.0
    return min_wave_length;
 }
 
+template <typename T>
+class response_image
+{
+public:
+
+   response_image(const std::size_t& width, const std::size_t& height, const T null = T(0))
+   : width_ (width ),
+     height_(height),
+      null_ (null  )
+   {
+      data_.resize(width_ * height_);
+   }
+
+   std::size_t width () const { return  width_; }
+   std::size_t height() const { return height_; }
+
+   void set_all(const T& t)
+   {
+      std::fill_n(data_.begin(), data_.size(), t);
+   }
+
+   const T& operator()(const std::size_t& x, const std::size_t& y) const
+   {
+      if (y >= height_) return null_;
+      if (x >= width_ ) return null_;
+      return data_[width_ * y + x];
+   }
+
+   T& operator()(const std::size_t& x, const std::size_t& y)
+   {
+      if (y >= height_) return null_;
+      if (x >= width_ ) return null_;
+      return data_[width_ * y + x];
+   }
+
+   bool valid(const std::size_t& x, const std::size_t& y)
+   {
+      return ((x < width_ ) || (y < height_));
+   }
+
+   void inc_all(const T& v)
+   {
+      for (std::size_t i = 0; i < data_.size(); ++i)
+      {
+         data_[i] += v;
+      }
+   }
+
+private:
+
+   std::size_t    width_;
+   std::size_t    height_;
+   std::size_t    offset_x_;
+   std::size_t    offset_y_;
+   std::vector<T> data_;
+   T              null_;
+};
+
 enum palette_name
 {
   e_red,           e_scarlet,      e_vermilion,        e_tangelo,         e_orange,
@@ -2686,7 +2819,7 @@ enum palette_name
   e_raspberry,     e_crimson,      e_amaranth,         e_white,           e_black
 };
 
-const rgb_store palette_colormap[] = {
+const rgb_t palette_colormap[] = {
    {255,   0,   0}, {255,  31,   0}, {255,  63,   0}, {255,  95,   0}, {255, 127,   0},
    {255, 159,   0}, {255, 191,   0}, {255, 223,   0}, {255, 255,   0}, {223, 255,   0},
    {191, 255,   0}, {159, 255,   0}, {127, 255,   0}, { 95, 255,   0}, { 63, 255,   0},
@@ -2699,7 +2832,7 @@ const rgb_store palette_colormap[] = {
    {255,   0,  95}, {255,   0,  63}, {255,   0,  31}, {255, 255, 255}, {  0,   0,   0}
 };
 
-const rgb_store autumn_colormap[1000] = {
+const rgb_t autumn_colormap[1000] = {
    {255,   0,   0}, {255,   0,   0}, {255,   1,   0}, {255,   1,   0}, {255,   1,   0},
    {255,   1,   0}, {255,   2,   0}, {255,   2,   0}, {255,   2,   0}, {255,   2,   0},
    {255,   3,   0}, {255,   3,   0}, {255,   3,   0}, {255,   3,   0}, {255,   4,   0},
@@ -2902,7 +3035,7 @@ const rgb_store autumn_colormap[1000] = {
    {255, 254,   0}, {255, 254,   0}, {255, 254,   0}, {255, 255,   0}, {255, 255,   0}
 };
 
-const rgb_store copper_colormap[1000] = {
+const rgb_t copper_colormap[1000] = {
    {  0,   0,   0}, {  0,   0,   0}, {  1,   0,   0}, {  1,   1,   0}, {  1,   1,   1},
    {  2,   1,   1}, {  2,   1,   1}, {  2,   1,   1}, {  3,   2,   1}, {  3,   2,   1},
    {  3,   2,   1}, {  4,   2,   1}, {  4,   2,   2}, {  4,   3,   2}, {  4,   3,   2},
@@ -3105,7 +3238,7 @@ const rgb_store copper_colormap[1000] = {
    {255, 198, 126}, {255, 199, 126}, {255, 199, 127}, {255, 199, 127}, {255, 199, 127}
 };
 
-const rgb_store gray_colormap[1000] = {
+const rgb_t gray_colormap[1000] = {
    {255, 255, 255}, {255, 255, 255}, {254, 254, 254}, {254, 254, 254}, {254, 254, 254},
    {254, 254, 254}, {253, 253, 253}, {253, 253, 253}, {253, 253, 253}, {253, 253, 253},
    {252, 252, 252}, {252, 252, 252}, {252, 252, 252}, {252, 252, 252}, {251, 251, 251},
@@ -3308,7 +3441,7 @@ const rgb_store gray_colormap[1000] = {
    {  1,   1,   1}, {  1,   1,   1}, {  1,   1,   1}, {  0,   0,   0}, {  0,   0,   0}
 };
 
-const rgb_store hot_colormap[1000] = {
+const rgb_t hot_colormap[1000] = {
    { 11,   0,   0}, { 11,   0,   0}, { 12,   0,   0}, { 13,   0,   0}, { 13,   0,   0},
    { 14,   0,   0}, { 15,   0,   0}, { 15,   0,   0}, { 16,   0,   0}, { 17,   0,   0},
    { 17,   0,   0}, { 18,   0,   0}, { 19,   0,   0}, { 19,   0,   0}, { 20,   0,   0},
@@ -3511,7 +3644,7 @@ const rgb_store hot_colormap[1000] = {
    {255, 255, 251}, {255, 255, 252}, {255, 255, 253}, {255, 255, 254}, {255, 255, 255}
 };
 
-const rgb_store hsv_colormap[1000] = {
+const rgb_t hsv_colormap[1000] = {
    {255,   0,   0}, {255,   2,   0}, {255,   3,   0}, {255,   5,   0}, {255,   6,   0},
    {255,   8,   0}, {255,   9,   0}, {255,  11,   0}, {255,  12,   0}, {255,  14,   0},
    {255,  15,   0}, {255,  17,   0}, {255,  18,   0}, {255,  20,   0}, {255,  21,   0},
@@ -3714,7 +3847,7 @@ const rgb_store hsv_colormap[1000] = {
    {255,   0,  30}, {255,   0,  28}, {255,   0,  27}, {255,   0,  25}, {255,   0,  24}
 };
 
-const rgb_store jet_colormap[1000] = {
+const rgb_t jet_colormap[1000] = {
    { 29,   0, 102}, { 23,   0, 107}, { 17,   0, 112}, { 12,   0, 117}, {  6,   0, 122},
    {  0,   0, 127}, {  0,   0, 128}, {  0,   0, 129}, {  0,   0, 129}, {  0,   0, 130},
    {  0,   0, 131}, {  0,   0, 132}, {  0,   0, 133}, {  0,   0, 133}, {  0,   0, 134},
@@ -3917,7 +4050,7 @@ const rgb_store jet_colormap[1000] = {
    {122,   0,   9}, {117,   0,  18}, {112,   0,  27}, {107,   0,  36}, {102,   0,  45}
 };
 
-const rgb_store prism_colormap[1000] = {
+const rgb_t prism_colormap[1000] = {
    {255,   0,   0}, {255,   2,   0}, {255,   4,   0}, {255,   6,   0}, {255,   8,   0},
    {255,  10,   0}, {255,  11,   0}, {255,  13,   0}, {255,  15,   0}, {255,  17,   0},
    {255,  19,   0}, {255,  21,   0}, {255,  23,   0}, {255,  25,   0}, {255,  27,   0},
@@ -4120,7 +4253,7 @@ const rgb_store prism_colormap[1000] = {
    { 15, 255,   0}, { 11, 255,   0}, {  8, 255,   0}, {  4, 255,   0}, {  0, 255,   0}
 };
 
-const rgb_store vga_colormap[1000] = {
+const rgb_t vga_colormap[1000] = {
    {255, 255, 255}, {254, 254, 254}, {253, 253, 253}, {252, 252, 252}, {251, 251, 251},
    {250, 250, 250}, {249, 249, 249}, {248, 248, 248}, {247, 247, 247}, {246, 246, 246},
    {245, 245, 245}, {244, 244, 244}, {244, 244, 244}, {243, 243, 243}, {242, 242, 242},
@@ -4323,7 +4456,7 @@ const rgb_store vga_colormap[1000] = {
    {120,   0, 128}, {122,   0, 128}, {124,   0, 128}, {126,   0, 128}, {128,   0, 128}
 };
 
-const rgb_store yarg_colormap[1000] = {
+const rgb_t yarg_colormap[1000] = {
    {  0,   0,   0}, {  0,   0,   0}, {  1,   1,   1}, {  1,   1,   1}, {  1,   1,   1},
    {  1,   1,   1}, {  2,   2,   2}, {  2,   2,   2}, {  2,   2,   2}, {  2,   2,   2},
    {  3,   3,   3}, {  3,   3,   3}, {  3,   3,   3}, {  3,   3,   3}, {  4,   4,   4},

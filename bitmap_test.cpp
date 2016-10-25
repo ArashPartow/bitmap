@@ -240,7 +240,7 @@ void test09()
    {
       for (unsigned int y = 0; y < dim; ++y)
       {
-         rgb_store col = jet_colormap[(x + y) % dim];
+         rgb_t col = jet_colormap[(x + y) % dim];
          image.set_pixel(x,y,col.red,col.green,col.blue);
       }
    }
@@ -471,17 +471,17 @@ void test18()
    {
       bitmap_image image(1000,180);
       image_drawer draw(image);
-      const rgb_store* colormap[9] = {
-                                       autumn_colormap,
-                                       copper_colormap,
-                                         gray_colormap,
-                                          hot_colormap,
-                                          hsv_colormap,
-                                          jet_colormap,
-                                        prism_colormap,
-                                          vga_colormap,
-                                         yarg_colormap
-                                     };
+      const rgb_t* colormap[9] = {
+                                   autumn_colormap,
+                                   copper_colormap,
+                                     gray_colormap,
+                                      hot_colormap,
+                                      hsv_colormap,
+                                      jet_colormap,
+                                    prism_colormap,
+                                      vga_colormap,
+                                     yarg_colormap
+                                 };
 
       for (unsigned int i = 0; i < image.width(); ++i)
       {
@@ -499,7 +499,7 @@ void test18()
       bitmap_image image(1000,500);
       image_drawer draw(image);
 
-      std::size_t palette_colormap_size = sizeof(palette_colormap) / sizeof(rgb_store);
+      std::size_t palette_colormap_size = sizeof(palette_colormap) / sizeof(rgb_t);
       std::size_t bar_width = image.width() / palette_colormap_size;
 
       for (std::size_t i = 0; i < palette_colormap_size; ++i)
@@ -536,7 +536,7 @@ void test19()
 
       for (std::size_t i = 0; i < 160; i++)
       {
-         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_t));
 
          canvas.pen_color(palette_colormap[c_idx].red, palette_colormap[c_idx].green, palette_colormap[c_idx].blue);
 
@@ -565,7 +565,7 @@ void test19()
 
       for (double x = -500; x < 500; x += 3, ++i)
       {
-         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_store));
+         std::size_t c_idx = i % (sizeof(palette_colormap) / sizeof(rgb_t));
 
          canvas.pen_color(palette_colormap[c_idx].red, palette_colormap[c_idx].green, palette_colormap[c_idx].blue);
 
@@ -582,12 +582,12 @@ void test19()
 
 void test20()
 {
-   const rgb_store* colormap[4] = {
-                                       hsv_colormap,
-                                       jet_colormap,
-                                     prism_colormap,
-                                       vga_colormap
-                                  };
+   const rgb_t* colormap[4] = {
+                                   hsv_colormap,
+                                   jet_colormap,
+                                 prism_colormap,
+                                   vga_colormap
+                              };
 
    const unsigned int fractal_width  = 1200;
    const unsigned int fractal_height =  800;
@@ -639,10 +639,10 @@ void test20()
                         (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
                      #undef log2
 
-                     rgb_store c0 = colormap[0][index];
-                     rgb_store c1 = colormap[1][index];
-                     rgb_store c2 = colormap[2][index];
-                     rgb_store c3 = colormap[3][index];
+                     rgb_t c0 = colormap[0][index];
+                     rgb_t c1 = colormap[1][index];
+                     rgb_t c2 = colormap[2][index];
+                     rgb_t c3 = colormap[3][index];
 
                      fractal_hsv  .set_pixel(x, y, c0.red, c0.green, c0.blue);
                      fractal_jet  .set_pixel(x, y, c1.red, c1.green, c1.blue);
@@ -701,10 +701,10 @@ void test20()
                   {
                      unsigned int index = static_cast<int>((1000.0 * i) / max_iterations);
 
-                     rgb_store c0 = colormap[0][index];
-                     rgb_store c1 = colormap[1][index];
-                     rgb_store c2 = colormap[2][index];
-                     rgb_store c3 = colormap[3][index];
+                     rgb_t c0 = colormap[0][index];
+                     rgb_t c1 = colormap[1][index];
+                     rgb_t c2 = colormap[2][index];
+                     rgb_t c3 = colormap[3][index];
 
                      fractal_hsv  .set_pixel(x, y, c0.red, c0.green, c0.blue);
                      fractal_jet  .set_pixel(x, y, c1.red, c1.green, c1.blue);
