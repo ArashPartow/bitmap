@@ -498,13 +498,11 @@ int main()
 
    draw.rectangle(0, 0, image.width() - 1, image.height() - 1);
 
-   std::size_t colour = 0;
-
    for (std::size_t y = 0; y < maze.height(); ++y)
    {
       for (std::size_t x = 0; x < maze.width(); ++x)
       {
-         const rgb_t c = prism_colormap[colour = (colour + x + y) % 1000];
+         const rgb_t c = prism_colormap[rand() % 1000];
 
          draw.pen_color(c.red, c.green, c.blue);
 
