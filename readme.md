@@ -164,9 +164,7 @@ int main()
                   unsigned int index = static_cast<unsigned int>
                      (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
 
-                  rgb_t c = jet_colormap[index];
-
-                  fractal.set_pixel(x, y, c.red, c.green, c.blue);
+                  fractal.set_pixel(x, y, jet_colormap[index]);
                }
 
                break;
@@ -225,9 +223,9 @@ int main()
             {
                if (max_iterations != i)
                {
-                  rgb_t c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
+                  rgb_t colour = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
 
-                  fractal.set_pixel(x, y, c.red, c.green, c.blue);
+                  fractal.set_pixel(x, y, colour);
                }
 
                break;
@@ -312,8 +310,8 @@ int main()
                unsigned char green;
                unsigned char  blue;
 
-               base      .get_pixel(sx,sy,red,green,blue);
-               lens_image.set_pixel( x, y,red,green,blue);
+               base      .get_pixel(sx, sy, red, green, blue);
+               lens_image.set_pixel( x,  y, red, green, blue);
             }
          }
       }
@@ -398,8 +396,8 @@ int main()
             unsigned char green;
             unsigned char  blue;
 
-            base       .get_pixel(sx,sy,red,green,blue);
-            swirl_image.set_pixel( x, y,red,green,blue);
+            base       .get_pixel(sx, sy, red, green, blue);
+            swirl_image.set_pixel( x,  y, red, green, blue);
          }
       }
    }
@@ -701,3 +699,183 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/fireballs.png?raw=true "C++ Bitmap Library Fire Balls Example - By Arash Partow")
+
+#### Simple Example 9
+The following example randomly generate circles and proceed to
+inscribe multiple levels of inner equilateral triangles. The example
+demonstrates the use of the cartesian canvas, pen functions, various
+shape fill routines and colour maps. Once complete the rendering will
+be saved to disk with the name: *'circles_and_triangles.bmp'*.
+
+```c++
+#include <cmath>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+struct point_t { double x,y; };
+
+int main()
+{
+   const int canvas_width  = 700;
+   const int canvas_height = 460;
+
+   cartesian_canvas canvas(canvas_width,canvas_height);
+
+   canvas.image().clear(255);
+
+   canvas.pen_width(1);
+
+   ::srand(0xA5A5A5A5);
+
+   for (std::size_t i = 0; i < 100; ++i)
+   {
+      double cx = ((rand() % canvas_width ) - canvas_width  / 2.0);
+      double cy = ((rand() % canvas_height) - canvas_height / 2.0);
+      double r  = (rand() % 70) + 10;
+
+      const double pi_   = 3.1415926535897932384626433832795028841971;
+      const double _120d = (2.0 * pi_/ 3.0);
+
+      double rndang = ((2.0 * pi_) / 360.0) * ((rand() % 360) + 1.0);
+
+      point_t p0, p1, p2;
+      point_t p3, p4, p5;
+
+      p0.x = r * std::sin(1.0 * _120d + rndang) + cx;
+      p0.y = r * std::cos(1.0 * _120d + rndang) + cy;
+      p1.x = r * std::sin(2.0 * _120d + rndang) + cx;
+      p1.y = r * std::cos(2.0 * _120d + rndang) + cy;
+      p2.x = r * std::sin(3.0 * _120d + rndang) + cx;
+      p2.y = r * std::cos(3.0 * _120d + rndang) + cy;
+
+      #define rnd_colour (copper_colormap[rand() % 1000])
+
+      // Draw and fill the circle
+      canvas.pen_color(rnd_colour);
+      canvas.fill_circle(cx, cy, r);
+      canvas.pen_color(rnd_colour);
+      canvas.circle(cx, cy, r);
+
+      // Draw and fill the main equilateral triangles
+      canvas.pen_color(rnd_colour);
+      canvas.fill_triangle(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+      canvas.pen_color(rnd_colour);
+      canvas.triangle(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+
+      // Draw the inner-equilateral triangles
+      for (unsigned int j = 0; j < 4; ++j)
+      {
+         p3.x = (p0.x + p1.x) / 2.0;
+         p3.y = (p0.y + p1.y) / 2.0;
+         p4.x = (p1.x + p2.x) / 2.0;
+         p4.y = (p1.y + p2.y) / 2.0;
+         p5.x = (p2.x + p0.x) / 2.0;
+         p5.y = (p2.y + p0.y) / 2.0;
+
+         p0 = p3; p1 = p4; p2 = p5;
+
+         canvas.pen_color(rnd_colour);
+         canvas.fill_triangle(p3.x,p3.y,p4.x,p4.y,p5.x,p5.y);
+         canvas.pen_color(rnd_colour);
+         canvas.triangle(p3.x,p3.y,p4.x,p4.y,p5.x,p5.y);
+      }
+   }
+
+   canvas.image().save_image("circles_and_triangles.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/circles_and_triangles.png?raw=true "C++ Bitmap Library Circles And Equilateral Triangles - By Arash Partow")
+
+#### Simple Example 10
+The following example renders Archimedean spirals upon a gray-scale
+plasma background. The example demonstrates the use of the cartesian
+canvas, pen functions, and colour maps. Once complete the rendering
+will be saved to disk with the name: *'spirals.bmp'*.
+
+```c++
+#include <cmath>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+struct point_t
+{
+   point_t(double _x = 0.0, double _y = 0.0) : x(_x), y(_y) {}
+   double x,y;
+};
+
+int main()
+{
+   const double pi_ = 3.1415926535897932384626433832795028841971;
+   const double a   = 20;
+   const double b   = 20;
+   const double dr  = (2.0 * pi_) / 1000.0;
+
+   const std::size_t N = 5;
+   const double delta_angle = (2.0 * pi_) / N;
+
+   std::vector<point_t> spiral;
+
+   for (std::size_t i = 0; i < N; ++i)
+   {
+      spiral.push_back(
+         point_t(a * std::cos((delta_angle * i)),
+                 a * std::sin((delta_angle * i))));
+   }
+
+   const int canvas_width  = 600;
+   const int canvas_height = 600;
+
+   cartesian_canvas canvas(canvas_width,canvas_height);
+
+   canvas.image().clear(0);
+
+   {
+      // Render background using Plasma effect
+      double c1 = 0.9;
+      double c2 = 0.5;
+      double c3 = 0.3;
+      double c4 = 0.7;
+
+      bitmap_image& image = canvas.image();
+
+      ::srand(0xA5AA5AA5);
+      plasma(image,0,0,image.width(),image.height(),c1,c2,c3,c4,3.0,gray_colormap);
+   }
+
+   for (double angle = dr; (a + b * angle) < canvas.image().width() / 2; angle += dr)
+   {
+      for (std::size_t i = 0; i < spiral.size(); ++i)
+      {
+         point_t curr;
+
+         curr.x = (a + b * angle) * std::cos(angle + delta_angle * i);
+         curr.y = (a + b * angle) * std::sin(angle + delta_angle * i);
+
+         const double centre_ratio =
+            (sqrt(curr.x * curr.x + curr.y * curr.y) / (canvas.image().width() / 2.0));
+
+              if (centre_ratio <= 0.25) canvas.pen_width(1);
+         else if (centre_ratio <= 0.50) canvas.pen_width(2);
+         else if (centre_ratio <= 0.75) canvas.pen_width(3);
+         else if (centre_ratio <= 1.00) canvas.pen_width(4);
+
+         unsigned int index = (unsigned int)(1000.0 * centre_ratio);
+
+         canvas.pen_color(hsv_colormap[index]);
+
+         canvas.line_segment(spiral[i].x,spiral[i].y, curr.x,curr.y);
+
+         spiral[i] = curr;
+      }
+   }
+
+   canvas.image().save_image("spirals.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/spirals.png?raw=true "C++ Bitmap Library Archimedean Spirals - By Arash Partow")

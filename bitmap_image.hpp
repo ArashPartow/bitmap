@@ -183,6 +183,17 @@ public:
       data_[y_offset + x_offset + 2] = red;
    }
 
+   template <typename RGB>
+   inline void set_pixel(const unsigned int x, const unsigned int y, const RGB& colour)
+   {
+      const unsigned int y_offset = y * row_increment_;
+      const unsigned int x_offset = x * bytes_per_pixel_;
+
+      data_[y_offset + x_offset + 0] = colour.blue;
+      data_[y_offset + x_offset + 1] = colour.green;
+      data_[y_offset + x_offset + 2] = colour.red;
+   }
+
    inline bool copy_from(const bitmap_image& image)
    {
       if (
@@ -504,7 +515,7 @@ public:
       for (unsigned char* itr = data(); itr < end(); *itr = ~(*itr), ++itr);
    }
 
-   inline void add_to_color_plane(const color_plane color,const unsigned char& value)
+   inline void add_to_color_plane(const color_plane color, const unsigned char& value)
    {
       for (unsigned char* itr = (data() + offset(color)); itr < end(); itr += bytes_per_pixel_)
       {
@@ -1627,9 +1638,7 @@ inline std::size_t convert_rsp_to_image(const ResponseImage& resp_image, const P
 
          unsigned int index = static_cast<unsigned int>((v < 0) ? 0 : v > (palette.size()) ? (palette.size() - 1) : v);
 
-         rgb_t c = palette[index];
-
-         image.set_pixel(x,y,c.red,c.green,c.blue);
+         image.set_pixel(x,y,palette[index]);
       }
    }
 
@@ -1912,12 +1921,13 @@ inline void plasma(bitmap_image& image,
    else
    {
       rgb_t color = colormap[static_cast<unsigned int>(1000.0 * ((c1 + c2 + c3 + c4) / 4.0)) % 1000];
-      image.set_pixel(static_cast<unsigned int>(x),static_cast<unsigned int>(y),color.red,color.green,color.blue);
+
+      image.set_pixel(static_cast<unsigned int>(x),static_cast<unsigned int>(y),color);
    }
 }
 
-inline double psnr_region(const unsigned int& x,     const unsigned int& y,
-                          const unsigned int& width, const unsigned int& height,
+inline double psnr_region(const unsigned int& x,      const unsigned int& y,
+                          const unsigned int& width,  const unsigned int& height,
                           const bitmap_image& image1, const bitmap_image& image2)
 {
    if (
@@ -2282,6 +2292,14 @@ public:
       pen_color_blue_  = blue;
    }
 
+   template <typename RGB>
+   void pen_color(const RGB colour)
+   {
+      pen_color_red_   = colour.red;
+      pen_color_green_ = colour.green;
+      pen_color_blue_  = colour.blue;
+   }
+
 private:
 
    image_drawer(const image_drawer& id);
@@ -2323,14 +2341,14 @@ public:
       line_segment(x1,y2,x1,y1);
    }
 
-   void triangle(double x1, double y1, double x2, double y2,int x3, double y3)
+   void triangle(double x1, double y1, double x2, double y2, double x3, double y3)
    {
       line_segment(x1,y1,x2,y2);
       line_segment(x2,y2,x3,y3);
       line_segment(x3,y3,x1,y1);
    }
 
-   void quadix(double x1, double y1, double x2, double y2,int x3, double y3, double x4, double y4)
+   void quadix(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
    {
       line_segment(x1,y1,x2,y2);
       line_segment(x2,y2,x3,y3);
@@ -2394,6 +2412,154 @@ public:
       draw_.circle(sc_cx,sc_cy,static_cast<int>(radius));
    }
 
+   void fill_rectangle(double x1, double y1, double x2, double y2)
+   {
+      if (y1 > y2)
+         std::swap(y1,y2);
+
+      for (double y = y1; y <= y2; y += 0.5)
+      {
+        line_segment(x1,y,x2,y);
+      }
+   }
+
+   void fill_triangle(double x1, double y1, double x2, double y2, double x3, double y3)
+   {
+      typedef std::pair<double,double> point_t;
+
+      std::vector<point_t> p;
+
+      p.push_back(std::make_pair(x1,y1));
+      p.push_back(std::make_pair(x2,y2));
+      p.push_back(std::make_pair(x3,y3));
+
+      if (p[0].second > p[1].second)
+         std::swap(p[0],p[1]);
+      if (p[0].second > p[2].second)
+         std::swap(p[0],p[2]);
+      if (p[1].second > p[2].second)
+         std::swap(p[1],p[2]);
+
+      class draw_modes
+      {
+      private:
+
+         cartesian_canvas& canvas;
+
+         // Needed for incompetent and broken msvc compiler versions
+         #ifdef _MSC_VER
+            #pragma warning(push)
+            #pragma warning(disable: 4822)
+         #endif
+         draw_modes& operator=(const draw_modes&);
+         #ifdef _MSC_VER
+            #pragma warning(pop)
+         #endif
+
+      public:
+
+         draw_modes(cartesian_canvas& c)
+         : canvas(c)
+         {}
+
+         void bottom(const point_t& p0, const point_t& p1, const point_t& p2)
+         {
+            double m0 = (p1.first - p0.first) / (p1.second - p0.second) / 2.0;
+            double m1 = (p2.first - p0.first) / (p2.second - p0.second) / 2.0;
+
+            double x0 = p0.first;
+            double x1 = p0.first + 0.1;
+
+            for (double y = p0.second; y <= p1.second; y += 0.5)
+            {
+               canvas.line_segment(x0, y, x1, y);
+
+               x0 += m0;
+               x1 += m1;
+            }
+         }
+
+         void top(const point_t& p0, const point_t& p1, const point_t& p2)
+         {
+            double m0 = (p2.first - p0.first) / (p2.second - p0.second) / 2.0;
+            double m1 = (p2.first - p1.first) / (p2.second - p1.second) / 2.0;
+
+            double x0 = p2.first;
+            double x1 = p2.first + 0.1;
+
+            for (double y = p2.second; y >= p0.second; y -= 0.5)
+            {
+               canvas.line_segment(x0, y, x1, y);
+
+               x0 -= m0;
+               x1 -= m1;
+            }
+         }
+      };
+
+      draw_modes dm(*this);
+
+      const double eps = 0.00001;
+
+      if (std::abs(p[1].second - p[2].second) < eps)
+         dm.bottom(p[0], p[1], p[2]);
+      else if (std::abs(p[0].second - p[1].second) < eps)
+         dm.top(p[0], p[1], p[2]);
+      else
+      {
+         point_t p3;
+
+         p3.first  = (p[0].first + ((p[1].second - p[0].second) / (p[2].second - p[0].second)) * (p[2].first - p[0].first));
+         p3.second = p[1].second;
+
+         dm.bottom(p[0], p[1],   p3);
+         dm.top   (p[1],   p3, p[2]);
+      }
+   }
+
+   void fill_quadix(double x1, double y1, double x2, double y2, double x3, double y3, double x4, double y4)
+   {
+      fill_triangle(x1,y1,x2,y2,x3,y3);
+      fill_triangle(x1,y1,x3,y3,x4,y4);
+   }
+
+   void fill_circle(double cx, double cy, double radius)
+   {
+      const double delta = 1.0;
+      double x = radius;
+      double y = 0.0;
+      double dx = delta - (2.0 * delta * radius);
+      double dy = 0.0;
+      double dr = 0.0;
+
+      while (x >= y)
+      {
+         for (double i = cx - x; i <= cx + x; i += delta)
+         {
+            line_segment(cx - x, cy + y, cx + x, cy + y);
+            line_segment(cx - x, cy - y, cx + x, cy - y);
+         }
+
+         for (double i = cx - y; i <= cx + y; i += delta)
+         {
+            line_segment(cx - y, cy + x, cx + y, cy + x);
+            line_segment(cx - y, cy - x, cx + y, cy - x);
+         }
+
+         y += delta;
+
+         dr += dy;
+         dy += 2.0 * delta;
+
+         if ((2.0 * delta * dr + dx) > 0)
+         {
+             x -= delta;
+            dr +=  dx;
+            dx += 2.0 * delta;
+         }
+      }
+   }
+
    void plot_pen_pixel(double x, double y)
    {
       if ((x < min_x_) || (x > max_x_)) return;
@@ -2426,6 +2592,12 @@ public:
                   const unsigned char& blue)
    {
       draw_.pen_color(red,green,blue);
+   }
+
+   template <typename RGB>
+   void pen_color(const RGB colour)
+   {
+      draw_.pen_color(colour);
    }
 
    const bitmap_image& image() const
