@@ -262,7 +262,7 @@ public:
                           const unsigned int& height,
                           const unsigned char& value)
    {
-      if ((x + width)  > width_ ) { return false; }
+      if ((x + width ) > width_ ) { return false; }
       if ((y + height) > height_) { return false; }
 
       for (unsigned int r = 0; r < height; ++r)
@@ -282,7 +282,7 @@ public:
                           const color_plane color,
                           const unsigned char& value)
    {
-      if ((x + width) > width_)   { return false; }
+      if ((x + width ) > width_ ) { return false; }
       if ((y + height) > height_) { return false; }
 
       const unsigned int color_plane_offset = offset(color);
@@ -310,7 +310,7 @@ public:
                           const unsigned char& green,
                           const unsigned char& blue)
    {
-      if ((x +  width) >  width_) { return false; }
+      if ((x + width ) > width_ ) { return false; }
       if ((y + height) > height_) { return false; }
 
       for (unsigned int r = 0; r < height; ++r)
@@ -1116,7 +1116,7 @@ public:
                       const unsigned int& y,
                       const bitmap_image& image)
    {
-      if ((x + image.width()) > width_)   { return 0.0; }
+      if ((x + image.width() ) > width_ ) { return 0.0; }
       if ((y + image.height()) > height_) { return 0.0; }
 
       double mse = 0.0;
@@ -1938,7 +1938,7 @@ inline double psnr_region(const unsigned int& x,      const unsigned int& y,
       return 0.0;
    }
 
-   if ((x +  width) >  image1.width()) { return 0.0; }
+   if ((x + width ) > image1.width() ) { return 0.0; }
    if ((y + height) > image1.height()) { return 0.0; }
 
    double mse = 0.0;
@@ -2153,10 +2153,10 @@ public:
 
       while (d2 < 0)
       {
-         plot_pen_pixel(positive_tx,positive_ty);
-         plot_pen_pixel(positive_tx,negative_ty);
-         plot_pen_pixel(negative_tx,positive_ty);
-         plot_pen_pixel(negative_tx,negative_ty);
+         plot_pen_pixel(positive_tx, positive_ty);
+         plot_pen_pixel(positive_tx, negative_ty);
+         plot_pen_pixel(negative_tx, positive_ty);
+         plot_pen_pixel(negative_tx, negative_ty);
 
          ++y;
 
@@ -2183,10 +2183,10 @@ public:
 
       do
       {
-         plot_pen_pixel(positive_tx,positive_ty);
-         plot_pen_pixel(positive_tx,negative_ty);
-         plot_pen_pixel(negative_tx,positive_ty);
-         plot_pen_pixel(negative_tx,negative_ty);
+         plot_pen_pixel(positive_tx, positive_ty);
+         plot_pen_pixel(positive_tx, negative_ty);
+         plot_pen_pixel(negative_tx, positive_ty);
+         plot_pen_pixel(negative_tx, negative_ty);
 
          x--;
          t8 = t8 - t6;
@@ -2215,10 +2215,10 @@ public:
 
       while (radius >= 0)
       {
-         plot_pen_pixel(centerx + x,centery + radius);
-         plot_pen_pixel(centerx + x,centery - radius);
-         plot_pen_pixel(centerx - x,centery + radius);
-         plot_pen_pixel(centerx - x,centery - radius);
+         plot_pen_pixel(centerx + x, centery + radius);
+         plot_pen_pixel(centerx + x, centery - radius);
+         plot_pen_pixel(centerx - x, centery + radius);
+         plot_pen_pixel(centerx - x, centery - radius);
 
          if ((d + radius) > 0)
             d -= ((--radius) << 1) - 1;
@@ -2464,15 +2464,15 @@ public:
 
          void bottom(const point_t& p0, const point_t& p1, const point_t& p2)
          {
-            double m0 = (p1.first - p0.first) / (p1.second - p0.second) / 2.0;
-            double m1 = (p2.first - p0.first) / (p2.second - p0.second) / 2.0;
+            double m0 = (p1.first - p0.first) / (2.0 * (p1.second - p0.second));
+            double m1 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
 
             double x0 = p0.first;
-            double x1 = p0.first + 0.1;
+            double x1 = p0.first;
 
             for (double y = p0.second; y <= p1.second; y += 0.5)
             {
-               canvas.line_segment(x0, y, x1, y);
+               canvas.horiztonal_line_segment(x0, x1, y);
 
                x0 += m0;
                x1 += m1;
@@ -2481,15 +2481,15 @@ public:
 
          void top(const point_t& p0, const point_t& p1, const point_t& p2)
          {
-            double m0 = (p2.first - p0.first) / (p2.second - p0.second) / 2.0;
-            double m1 = (p2.first - p1.first) / (p2.second - p1.second) / 2.0;
+            double m0 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
+            double m1 = (p2.first - p1.first) / (2.0 * (p2.second - p1.second));
 
             double x0 = p2.first;
-            double x1 = p2.first + 0.1;
+            double x1 = p2.first;
 
             for (double y = p2.second; y >= p0.second; y -= 0.5)
             {
-               canvas.line_segment(x0, y, x1, y);
+               canvas.horiztonal_line_segment(x0, x1, y);
 
                x0 -= m0;
                x1 -= m1;
@@ -2536,14 +2536,14 @@ public:
       {
          for (double i = cx - x; i <= cx + x; i += delta)
          {
-            line_segment(cx - x, cy + y, cx + x, cy + y);
-            line_segment(cx - x, cy - y, cx + x, cy - y);
+            horiztonal_line_segment(cx - x, cx + x, cy + y);
+            horiztonal_line_segment(cx - x, cx + x, cy - y);
          }
 
          for (double i = cx - y; i <= cx + y; i += delta)
          {
-            line_segment(cx - y, cy + x, cx + y, cy + x);
-            line_segment(cx - y, cy - x, cx + y, cy - x);
+            horiztonal_line_segment(cx - y, cx + y, cy + x);
+            horiztonal_line_segment(cx - y, cx + y, cy - x);
          }
 
          y += delta;
