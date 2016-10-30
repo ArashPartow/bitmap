@@ -170,6 +170,13 @@ public:
       red   = data_[y_offset + x_offset + 2];
    }
 
+   template <typename RGB>
+   inline void get_pixel(const unsigned int x, const unsigned int y,
+                         RGB& colour)
+   {
+      get_pixel(x, y, colour.red, colour.green, colour.blue);
+   }
+
    inline void set_pixel(const unsigned int x, const unsigned int y,
                          const unsigned char red,
                          const unsigned char green,
@@ -186,12 +193,7 @@ public:
    template <typename RGB>
    inline void set_pixel(const unsigned int x, const unsigned int y, const RGB& colour)
    {
-      const unsigned int y_offset = y * row_increment_;
-      const unsigned int x_offset = x * bytes_per_pixel_;
-
-      data_[y_offset + x_offset + 0] = colour.blue;
-      data_[y_offset + x_offset + 1] = colour.green;
-      data_[y_offset + x_offset + 2] = colour.red;
+      set_pixel(x, y, colour.red, colour.green, colour.blue);
    }
 
    inline bool copy_from(const bitmap_image& image)

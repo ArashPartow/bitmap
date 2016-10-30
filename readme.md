@@ -7,14 +7,14 @@ image format.
 #### Capabilities
 + Read/Write 24-bit Bitmap Images
 + Pixel, row or column level batch editing
-+ Color conversions (RGB,YCbCr) in byte and floating values
++ Colour conversions (RGB,YCbCr) in byte and floating values
 + Highly optimized subsample and upsample (resizing)
-+ Various color maps (1000 levels - autumn, copper, gray, hot, hsv, jet, prism, vga, yarg)
++ Various colour maps (1000 levels - autumn, copper, gray, hot, hsv, jet, prism, vga, yarg)
 + Texture generation (checkered pattern, plasma)
 + Graphics drawing interface (line, line-segment, rectangle, triangle, quadix, horizontal and vertical line-segments, ellipse, circle, plot pixel, pen width, pen color)
 + Cartesian canvas and associated drawing interface
 + PSNR and Image comparisons
-+ Simple nearest color match from set of colors
++ Simple nearest colour match from set of colours
 + Wavelength to RGB approximations
 + Single header implementation, no building required. No external dependencies
 
@@ -53,10 +53,6 @@ int main()
       return 1;
    }
 
-   unsigned char red;
-   unsigned char green;
-   unsigned char blue;
-
    unsigned int total_number_of_pixels = 0;
 
    const unsigned int width  = image.width();
@@ -66,8 +62,11 @@ int main()
    {
       for (std::size_t x = 0; x < width; ++x)
       {
-         image.get_pixel(x,y,red,green,blue);
-         if (red >= 111)
+         rgb_t colour;
+
+         image.get_pixel(x, y, colour);
+
+         if (colour.red >= 111)
             total_number_of_pixels++;
       }
    }
@@ -81,9 +80,9 @@ int main()
 
 #### Simple Example 2
 The following example will create a bitmap of dimensions 200x200 pixels, set the
-background color to orange, then proceed to draw a circle centered in the middle
-of the bitmap of radius 50 pixels and of color red then a rectangle centered in
-the middle of the bitmap with a width and height of 100 pixels and of color blue.
+background colour to orange, then proceed to draw a circle centered in the middle
+of the bitmap of radius 50 pixels and of colour red then a rectangle centered in
+the middle of the bitmap with a width and height of 100 pixels and of colour blue.
 The newly constructed image will be saved to disk with the name: *'output.bmp'*.
 
 ```c++
@@ -242,11 +241,14 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/julia_set.png?raw=true "C++ Bitmap Library Julia Set Fractal - By Arash Partow")
 
+----
+
 #### Simple Example 5
-The following example will render a baseline image using a combination of plasma
-and checkered pattern effects. Then proceed to apply a lens distortion upon the
-base image. Finally both the base and the lens distorted versions of the images
-will be saved to file as *'base.bmp'* and *'lens_effect.bmp'* respectively.
+The following example will render a baseline image using a combination
+of plasma and checkered pattern effects. Then proceed to apply a lens
+distortion upon the base image. Finally both the base and the lens
+distorted versions of the images will be saved to file as *'base.bmp'*
+and *'lens_effect.bmp'* respectively.
 
 ```c++
 #include <algorithm>
@@ -281,9 +283,9 @@ int main()
    double lens_radius   = std::min(base.width(), base.height()) / 4;
    double lens_factor   = 0.7;
 
-   for (unsigned int x = 0; x < base.width(); x++)
+   for (unsigned int x = 0; x < base.width(); ++x)
    {
-      for (unsigned int y = 0; y < base.height(); y++)
+      for (unsigned int y = 0; y < base.height(); ++y)
       {
          double dx = x - lens_center_x;
          double dy = y - lens_center_y;
@@ -326,6 +328,8 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/lens_effect.png?raw=true "C++ Bitmap Library Magnifying Lens Effect Example - By Arash Partow")
 
+----
+
 #### Simple Example 6
 The following example will render a baseline image using a combination
 of plasma and checkered pattern effects. Then proceed to apply a swirl
@@ -334,7 +338,6 @@ distorted versions of the images will be saved to file as *'base.bmp'*
 and *'swirl_effect.bmp'* respectively.
 
 ```c++
-#include <algorithm>
 #include <cmath>
 #include "bitmap_image.hpp"
 
@@ -368,9 +371,9 @@ int main()
    const double pi_ = 3.1415926535897932384626433832795028841971;
    const double swirl_angle = pi_ / 3.0;
 
-   for (unsigned int x = 0; x < base.width(); x++)
+   for (unsigned int x = 0; x < base.width(); ++x)
    {
-      for (unsigned int y = 0; y < base.height(); y++)
+      for (unsigned int y = 0; y < base.height(); ++y)
       {
          double dx = x - swirl_center_x;
          double dy = y - swirl_center_y;
@@ -411,18 +414,19 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/swirl_effect.png?raw=true "C++ Bitmap Library Swirl Effect Example - By Arash Partow")
 
+----
 
 #### Simple Example 7
 The following example will render a maze generated using a simple
-recursive backtracking algorithm. The example demonstrates the use
-of the drawing and colouring functionalities. Once the maze has
-been completed, it will be saved to file as *'maze.bmp'*.
+recursive backtracking algorithm. The example demonstrates the use of
+the drawing and colouring functionalities. Once the maze has been
+completed, it will be saved to file as *'maze.bmp'*.
 
 ```c++
 #include <cstdlib>
 #include "bitmap_image.hpp"
 
-enum  compass { N = 1, E = 2, S = 4, W = 8 };
+enum compass { N = 1, E = 2, S = 4, W = 8 };
 
 const int untouched = (N | E | S | W);
 
@@ -437,7 +441,7 @@ const move_t move[5] =
 
 const int movemap[] = {0, 1, 2, 0, 3, 0, 0, 0, 4};
 
-const compass perms[] =
+const compass permutations[] =
       {
         N,S,E,W, S,N,E,W, E,N,S,W, N,E,S,W, S,E,N,W, E,S,N,W, E,S,W,N, S,E,W,N,
         W,E,S,N, E,W,S,N, S,W,E,N, W,S,E,N, W,N,E,S, N,W,E,S, E,W,N,S, W,E,N,S,
@@ -446,13 +450,14 @@ const compass perms[] =
 
 void generate_maze(int cx, int cy, response_image<int>& maze)
 {
-   unsigned int perm_index = 4 * ((rand() % 24));
+   const unsigned int perm_index = 4 * ((rand() % 24));
 
-   std::vector<compass> directions(&perms[perm_index], &perms[perm_index + 4]);
+   std::vector<compass>
+      directions(&permutations[perm_index], &permutations[perm_index + 4]);
 
-   for(std::size_t i = 0; i < directions.size(); ++i)
+   for (std::size_t i = 0; i < directions.size(); ++i)
    {
-      move_t m = move[movemap[directions[i]]];
+      const move_t m = move[movemap[directions[i]]];
 
       const int x = cx + m.x;
       const int y = cy + m.y;
@@ -465,6 +470,7 @@ void generate_maze(int cx, int cy, response_image<int>& maze)
          )
          continue;
 
+      // Eliminate the wall corresponding to the selected direction.
       maze(cx,cy) = maze(cx,cy) & ~directions[i];
       maze( x, y) = maze( x, y) & ~m.inverse;
 
@@ -485,25 +491,38 @@ int main()
 
    const std::size_t wall_size_x = 10; // 10 pixels
    const std::size_t wall_size_y =  8; //  8 pixels
+   const std::size_t pen_size    =  2; //  2 pixels
 
-   bitmap_image image((maze_width ) * wall_size_x, (maze_height ) * wall_size_y);
+   bitmap_image image(
+                       (maze_width ) * wall_size_x + (pen_size - 1),
+                       (maze_height) * wall_size_y + (pen_size - 1)
+                     );
+
    image.clear();
+
+   {
+      // Render background using Plasma effect
+      double c1 = 0.9;
+      double c2 = 0.5;
+      double c3 = 0.3;
+      double c4 = 0.7;
+
+      ::srand(0xA5AA5AA5);
+      plasma(image,0,0,image.width(),image.height(),c1,c2,c3,c4,3.0,jet_colormap);
+   }
 
    image_drawer draw(image);
 
    draw.pen_width(2);
-   draw.pen_color(0, 255, 0);
+   draw.pen_color(0, 0, 0);
 
-   draw.rectangle(0, 0, image.width() - 1, image.height() - 1);
+   draw.rectangle(0, 0, image.width() - pen_size, image.height() - pen_size);
 
+   // Draw the maze
    for (std::size_t y = 0; y < maze.height(); ++y)
    {
       for (std::size_t x = 0; x < maze.width(); ++x)
       {
-         const rgb_t c = prism_colormap[rand() % 1000];
-
-         draw.pen_color(c.red, c.green, c.blue);
-
          // Cell(x,y) coordinates
          const int x0 = x * wall_size_x;
          const int y0 = y * wall_size_y;
@@ -511,6 +530,7 @@ int main()
          const int y1 = y * wall_size_y + wall_size_y;
 
          const int cell = maze(x,y);
+
          // Is north wall present?
          if ((cell & N))
             draw.line_segment(x0, y0, x1, y0);
@@ -537,15 +557,17 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/maze.png?raw=true "C++ Bitmap Library Maze Generator Example - By Arash Partow")
 
+----
 
 #### Simple Example 8
-The following example will render a group of fireballs placed
-equidistant to their immediate neighbours following a Lissajous curve.
-The fireballs will then proceed move within the plane using the curve
-as their path. The example demonstrates the construction of a
-piecewise colour palette and the response_image functionality. After
-having 'simulated' N-frames, the final frame will be converted to a
-bitmap and then saved to file as *'fireballs.bmp'*.
+The following example is an old-school graphical effect of rendering
+fireballs that have been placed equidistant to their immediate
+neighbours following a Lissajous curve. The fireballs will then
+proceed move within the plane using the curve as their path. The
+example demonstrates the construction of a piecewise colour palette
+and the response_image functionality. After having 'simulated' N-
+frames, the final frame will be converted to a bitmap and then saved
+to file as *'fireballs.bmp'*.
 
 ```c++
 #include <cmath>
@@ -560,7 +582,7 @@ struct lissajous_curve
      scale_y(ys)
    {}
 
-   inline double x(const double t) const { return scale_x * std::sin(    t); }
+   inline double x(const double t) const { return scale_x * std::sin(4 * t); }
    inline double y(const double t) const { return scale_y * std::cos(3 * t); }
 
    double scale_x;
@@ -569,7 +591,7 @@ struct lissajous_curve
 
 int main()
 {
-   bitmap_image image(600,400);
+   bitmap_image image(700,500);
 
    image.clear();
 
@@ -584,7 +606,7 @@ int main()
    const double cooling_factor = 0.940; // [0,1]
 
    // Arc-length of curve: x(t) = a0 * sin(4t), y(t) = a1 * cos(3t)
-   const double curve_length = 5102.0;
+   const double curve_length = 6151.0;
 
    double segment_length  = curve_length / max_fire_balls;
    double curr_seg_length = 0;
@@ -623,7 +645,7 @@ int main()
 
    std::vector<rgb_t> fire_palette;
 
-   // Baseline colours used fire palette
+   // Baseline colours used in fire palette
    rgb_t black  = make_colour(0,    0,  0);
    rgb_t red    = make_colour(255,  0,  0);
    rgb_t yellow = make_colour(255,255,  0);
@@ -700,6 +722,8 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/fireballs.png?raw=true "C++ Bitmap Library Fire Balls Example - By Arash Partow")
 
+----
+
 #### Simple Example 9
 The following example randomly generate circles and proceed to
 inscribe multiple levels of inner equilateral triangles. The example
@@ -758,9 +782,9 @@ int main()
 
       // Draw and fill the main equilateral triangles
       canvas.pen_color(rnd_colour);
-      canvas.fill_triangle(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+      canvas.fill_triangle(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
       canvas.pen_color(rnd_colour);
-      canvas.triangle(p0.x,p0.y,p1.x,p1.y,p2.x,p2.y);
+      canvas.triangle(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y);
 
       // Draw the inner-equilateral triangles
       for (unsigned int j = 0; j < 4; ++j)
@@ -775,9 +799,9 @@ int main()
          p0 = p3; p1 = p4; p2 = p5;
 
          canvas.pen_color(rnd_colour);
-         canvas.fill_triangle(p3.x,p3.y,p4.x,p4.y,p5.x,p5.y);
+         canvas.fill_triangle(p3.x, p3.y, p4.x, p4.y, p5.x, p5.y);
          canvas.pen_color(rnd_colour);
-         canvas.triangle(p3.x,p3.y,p4.x,p4.y,p5.x,p5.y);
+         canvas.triangle(p3.x, p3.y, p4.x, p4.y, p5.x, p5.y);
       }
    }
 
@@ -788,6 +812,8 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/circles_and_triangles.png?raw=true "C++ Bitmap Library Circles And Equilateral Triangles - By Arash Partow")
+
+----
 
 #### Simple Example 10
 The following example renders Archimedean spirals upon a gray-scale
@@ -866,7 +892,7 @@ int main()
 
          canvas.pen_color(hsv_colormap[index]);
 
-         canvas.line_segment(spiral[i].x,spiral[i].y, curr.x,curr.y);
+         canvas.line_segment(spiral[i].x, spiral[i].y, curr.x, curr.y);
 
          spiral[i] = curr;
       }
@@ -880,12 +906,15 @@ int main()
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/spirals.png?raw=true "C++ Bitmap Library Archimedean Spirals - By Arash Partow")
 
+----
+
 #### Simple Example 11
-The following example will take as input *'tiger.bmp'*. The proceed
+The following example will take as input *'tiger.bmp'*. Then proceed
 to dissect the image into 9 cells of 3x3, then proceed to randomly
 shuffle cells. The example demonstrates the copying to-and-from
-regions within images. Once the shuffling as been complete the
-shuffled image will be saved to disk with the name: *'shuffled.bmp'*.
+'Regions Of Interest' ROI within and between images. Once the
+shuffling as been complete the shuffled image will be saved to disk
+with the name: *'shuffled.bmp'*.
 
 ```c++
 #include <cmath>
@@ -897,7 +926,7 @@ void shuffle(unsigned int n, std::vector<unsigned int>& v)
 {
    ::srand(0x13A1515A);
    for (unsigned int i = 0; i < n; ++i) v.push_back(i);
-   for (unsigned int i= v.size() - 1; i > 0; --i)
+   for (unsigned int i = v.size() - 1; i > 0; --i)
    { std::swap(v[i], v[rand() % (i + 1)]); }
 }
 
@@ -911,9 +940,9 @@ int main()
 
    std::vector<unsigned int> cell;
 
-   shuffle(divisions * divisions,cell);
+   shuffle(divisions * divisions, cell);
 
-   bitmap_image shuffled(image.width(),image.height());
+   bitmap_image shuffled(image.width(), image.height());
    bitmap_image region;
 
    shuffled.clear();
@@ -941,3 +970,16 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/shuffled.png?raw=true "C++ Bitmap Library Image Shuffle - By Arash Partow")
+
+----
+
+#### Final Note
+The above examples are for exposition purposes, primarily intended to
+demonstrate the functionality of the bitmap_image library using short,
+concise and simple to understand pieces of code. As such certain
+'coding' simplifications were made which would not necessarily be
+acceptable in production implementations. As an example the use of the
+quick-n-dirty libc 'rand' function should be replaced with the C++
+standard library's more modern and robust *std::random* facilities.
+Hence when evaluating the above examples such *'issues'* should perhaps
+be taken into consideration.
