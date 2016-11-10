@@ -258,6 +258,17 @@ public:
       return true;
    }
 
+   inline bool roi_from_center(const unsigned int& cx,
+                               const unsigned int& cy,
+                               const unsigned int& width,
+                               const unsigned int& height,
+                               bitmap_image& dest_image)
+   {
+      return region(cx - (width / 2), cy - (height / 2),
+                    width, height,
+                    dest_image);
+   }
+
    inline bool set_region(const unsigned int& x,
                           const unsigned int& y,
                           const unsigned int& width,
@@ -406,11 +417,10 @@ public:
 
       if (!stream)
       {
-         std::cout << "bitmap_image::save_image(): Error - Could not open file "  << file_name << " for writing!" << std::endl;
+         std::cerr << "bitmap_image::save_image(): Error - Could not open file "  << file_name << " for writing!" << std::endl;
          return;
       }
 
-      bitmap_file_header bfh;
       bitmap_information_header bih;
 
       bih.width            = width_;
@@ -425,17 +435,19 @@ public:
       bih.y_pels_per_meter = 0;
       bih.size_image       = (((bih.width * bytes_per_pixel_) + 3) & 0x0000FFFC) * bih.height;
 
-      bfh.type      = 19778;
-      bfh.size      = 55 + bih.size_image;
-      bfh.reserved1 = 0;
-      bfh.reserved2 = 0;
-      bfh.off_bits  = bih.struct_size() + bfh.struct_size();
+      bitmap_file_header bfh;
+
+      bfh.type             = 19778;
+      bfh.size             = bfh.struct_size() + bih.struct_size() + bih.size_image;
+      bfh.reserved1        = 0;
+      bfh.reserved2        = 0;
+      bfh.off_bits         = bih.struct_size() + bfh.struct_size();
 
       write_bfh(stream,bfh);
       write_bih(stream,bih);
 
       unsigned int padding = (4 - ((3 * width_) % 4)) % 4;
-      char padding_data[4] = {0x0,0x0,0x0,0x0};
+      char padding_data[4] = { 0x00, 0x00, 0x00, 0x00 };
 
       for (unsigned int i = 0; i < height_; ++i)
       {

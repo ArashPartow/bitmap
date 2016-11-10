@@ -55,8 +55,8 @@ int main()
 
    unsigned int total_number_of_pixels = 0;
 
-   const unsigned int width  = image.width();
    const unsigned int height = image.height();
+   const unsigned int width  = image.width();
 
    for (std::size_t y = 0; y < height; ++y)
    {
@@ -72,6 +72,7 @@ int main()
    }
 
    printf("Number of pixels with red >= 111: %d\n",total_number_of_pixels);
+
    return 0;
 }
 ```
@@ -93,21 +94,21 @@ int main()
    bitmap_image image(200,200);
 
    // set background to orange
-   image.set_all_channels(255,150,50);
+   image.set_all_channels(255, 150, 50);
 
    image_drawer draw(image);
 
    draw.pen_width(3);
-   draw.pen_color(255,0,0);
-   draw.circle(image.width() / 2, image.height() / 2,50);
+   draw.pen_color(255, 0, 0);
+   draw.circle(image.width() / 2, image.height() / 2, 50);
 
    draw.pen_width(1);
-   draw.pen_color(0,0,255);
-   draw.rectangle(50,50,150,150);
+   draw.pen_color(0, 0, 255);
+   draw.rectangle(50, 50, 150, 150);
 
    image.save_image("output.bmp");
 
-   return 0
+   return 0;
 }
 ```
 
@@ -157,7 +158,7 @@ int main()
                {
                   using namespace std;
 
-                  double z = sqrt(nextr * nextr + nexti * nexti);
+                  const double z = sqrt(nextr * nextr + nexti * nexti);
 
                   //https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_.28smooth.29_coloring
                   unsigned int index = static_cast<unsigned int>
@@ -222,9 +223,9 @@ int main()
             {
                if (max_iterations != i)
                {
-                  rgb_t colour = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
+                  rgb_t c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
 
-                  fractal.set_pixel(x, y, colour);
+                  fractal.set_pixel(x, y, c);
                }
 
                break;
@@ -268,35 +269,37 @@ int main()
       const double c4 = 0.6;
 
       ::srand(0xA5AA5AA5);
-      plasma(base,0,0,base.width(),base.height(),c1,c2,c3,c4,3.0,jet_colormap);
-      checkered_pattern(30,30,230,bitmap_image::  red_plane,base);
-      checkered_pattern(30,30,  0,bitmap_image::green_plane,base);
-      checkered_pattern(30,30,100,bitmap_image:: blue_plane,base);
+
+      plasma(base, 0, 0, base.width(), base.height(), c1, c2, c3, c4, 3.0, jet_colormap);
+
+      checkered_pattern(30, 30, 230, bitmap_image::  red_plane, base);
+      checkered_pattern(30, 30,   0, bitmap_image::green_plane, base);
+      checkered_pattern(30, 30, 100, bitmap_image:: blue_plane, base);
    }
 
    bitmap_image lens_image(base.width(),base.height());
 
    lens_image = base;
 
-   double lens_center_x = base.width () / 2;
-   double lens_center_y = base.height() / 2;
-   double lens_radius   = std::min(base.width(), base.height()) / 4;
-   double lens_factor   = 0.7;
+   const double lens_center_x = base.width () / 2.0;
+   const double lens_center_y = base.height() / 2.0;
+   const double lens_radius   = std::min(base.width(), base.height()) / 4.0;
+   const double lens_factor   = 0.7;
 
    for (unsigned int x = 0; x < base.width(); ++x)
    {
       for (unsigned int y = 0; y < base.height(); ++y)
       {
-         double dx = x - lens_center_x;
-         double dy = y - lens_center_y;
+         const double dx = x - lens_center_x;
+         const double dy = y - lens_center_y;
 
-         double distance = std::sqrt((dx * dx) + (dy * dy));
+         const double distance = std::sqrt((dx * dx) + (dy * dy));
 
          if (distance <= lens_radius)
          {
-            double radius     = distance / lens_radius;
-            double angle      = std::atan2(dy, dx);
-            double distortion = std::pow(radius, lens_factor) * distance;
+            const double radius     = distance / lens_radius;
+            const double angle      = std::atan2(dy, dx);
+            const double distortion = std::pow(radius, lens_factor) * distance;
 
             int sx = static_cast<int>(distortion * std::cos(angle) + lens_center_x);
             int sy = static_cast<int>(distortion * std::sin(angle) + lens_center_y);
@@ -354,19 +357,21 @@ int main()
       const double c4 = 0.6;
 
       ::srand(0x5A5A5A5A);
-      plasma(base,0,0,base.width(),base.height(),c1,c2,c3,c4,7.0,jet_colormap);
-      checkered_pattern(20,20,250,bitmap_image::  red_plane,base);
-      checkered_pattern(20,20, 10,bitmap_image::green_plane,base);
-      checkered_pattern(20,20, 10,bitmap_image:: blue_plane,base);
+
+      plasma(base, 0, 0, base.width(), base.height(), c1, c2, c3, c4, 7.0, jet_colormap);
+
+      checkered_pattern(20, 20, 250, bitmap_image::  red_plane, base);
+      checkered_pattern(20, 20,  10, bitmap_image::green_plane, base);
+      checkered_pattern(20, 20,  10, bitmap_image:: blue_plane, base);
    }
 
    bitmap_image swirl_image(base.width(),base.height());
 
    swirl_image.clear();
 
-   double swirl_center_x = base.width () / 2;
-   double swirl_center_y = base.height() / 2;
-   double swirl_radius   = std::min(base.width(), base.height()) / 3;
+   const double swirl_center_x = base.width () / 2.0;
+   const double swirl_center_y = base.height() / 2.0;
+   const double swirl_radius   = std::min(base.width(), base.height()) / 3.0;
 
    const double pi_ = 3.1415926535897932384626433832795028841971;
    const double swirl_angle = pi_ / 3.0;
@@ -375,12 +380,12 @@ int main()
    {
       for (unsigned int y = 0; y < base.height(); ++y)
       {
-         double dx = x - swirl_center_x;
-         double dy = y - swirl_center_y;
+         const double dx = x - swirl_center_x;
+         const double dy = y - swirl_center_y;
 
-         double distance = std::sqrt((dx * dx) + (dy * dy));
+         const double distance = std::sqrt((dx * dx) + (dy * dy));
 
-         double angle = swirl_angle * (distance / swirl_radius);
+         const double angle = swirl_angle * (distance / swirl_radius);
 
          const double cosa = std::cos(angle);
          const double sina = std::sin(angle);
@@ -502,13 +507,14 @@ int main()
 
    {
       // Render background using Plasma effect
-      double c1 = 0.9;
-      double c2 = 0.5;
-      double c3 = 0.3;
-      double c4 = 0.7;
+      const double c1 = 0.9;
+      const double c2 = 0.5;
+      const double c3 = 0.3;
+      const double c4 = 0.7;
 
       ::srand(0xA5AA5AA5);
-      plasma(image,0,0,image.width(),image.height(),c1,c2,c3,c4,3.0,jet_colormap);
+
+      plasma(image, 0, 0, image.width(), image.height(), c1, c2, c3, c4, 3.0, jet_colormap);
    }
 
    image_drawer draw(image);
@@ -619,11 +625,11 @@ int main()
    // Set the initial location for each fireball
    for (double t = delta;  fire_ball.size() < max_fire_balls; t += delta)
    {
-      double center_x = curve.x(t);
-      double center_y = curve.y(t);
+      const double center_x = curve.x(t);
+      const double center_y = curve.y(t);
 
-      double dx = (prev_x - center_x);
-      double dy = (prev_y - center_y);
+      const double dx = (prev_x - center_x);
+      const double dy = (prev_y - center_y);
 
       curr_seg_length += std::sqrt((dx * dx) + (dy * dy));
 
@@ -646,16 +652,16 @@ int main()
    std::vector<rgb_t> fire_palette;
 
    // Baseline colours used in fire palette
-   rgb_t black  = make_colour(0,    0,  0);
-   rgb_t red    = make_colour(255,  0,  0);
-   rgb_t yellow = make_colour(255,255,  0);
-   rgb_t white  = make_colour(255,255,255);
+   rgb_t black  = make_colour(  0,   0,   0);
+   rgb_t red    = make_colour(255,   0,   0);
+   rgb_t yellow = make_colour(255, 255,   0);
+   rgb_t white  = make_colour(255, 255, 255);
 
    // Setup the fire palette:
    // Black (Coolest - 0) --> Red --> Yellow --> White (Hottest - 999)
-   generate_colours(334, black,    red, std::back_inserter(fire_palette));
-   generate_colours(333,   red, yellow, std::back_inserter(fire_palette));
-   generate_colours(333,yellow,  white, std::back_inserter(fire_palette));
+   generate_colours(334,  black,    red, std::back_inserter(fire_palette));
+   generate_colours(333,    red, yellow, std::back_inserter(fire_palette));
+   generate_colours(333, yellow,  white, std::back_inserter(fire_palette));
 
    for (std::size_t k = 0; k < number_of_frames; ++k)
    {
@@ -664,8 +670,8 @@ int main()
       // Render fireballs on response image
       for (std::size_t i = 0; i < fire_ball.size(); ++i)
       {
-         double fb_x = curve.x(fire_ball[i]) + image.width () / 2.0;
-         double fb_y = curve.y(fire_ball[i]) + image.height() / 2.0;
+         const double fb_x = curve.x(fire_ball[i]) + image.width () / 2.0;
+         const double fb_y = curve.y(fire_ball[i]) + image.height() / 2.0;
 
          // Draw circles with radii in the range [1,10]
          for (double t = 0;  t < (2 * pi_); t += (((2.0 * pi_) / 360)))
@@ -675,9 +681,13 @@ int main()
                std::size_t rx = static_cast<std::size_t>(r * std::sin(t) + fb_x);
                std::size_t ry = static_cast<std::size_t>(r * std::cos(t) + fb_y);
 
-               double heat_distortion = 50.0 * std::cos(delta * i) + 50; // per-frame in [0,100]
+               // Per-frame in the range [0,100]
+               double heat_distortion = 50.0 * std::cos(delta * i) + 50;
 
-               resp_image(rx,ry) = fire_palette.size() * 0.8 + heat_distortion + (::rand() % 100);
+               resp_image(rx,ry) = fire_palette.size() * 0.8 +
+                                   heat_distortion +
+                                   (::rand() % 100);
+
                fb_misses (rx,ry) = 0;
             }
          }
@@ -835,8 +845,8 @@ struct point_t
 int main()
 {
    const double pi_ = 3.1415926535897932384626433832795028841971;
-   const double a   = 20;
-   const double b   = 20;
+   const double a   = 20.0;
+   const double b   = 20.0;
    const double dr  = (2.0 * pi_) / 1000.0;
 
    const std::size_t N = 5;
@@ -860,18 +870,19 @@ int main()
 
    {
       // Render background using Plasma effect
-      double c1 = 0.9;
-      double c2 = 0.5;
-      double c3 = 0.3;
-      double c4 = 0.7;
+      const double c1 = 0.9;
+      const double c2 = 0.5;
+      const double c3 = 0.3;
+      const double c4 = 0.7;
 
       bitmap_image& image = canvas.image();
 
       ::srand(0xA5AA5AA5);
-      plasma(image,0,0,image.width(),image.height(),c1,c2,c3,c4,3.0,gray_colormap);
+
+      plasma(image, 0, 0, image.width(), image.height(), c1, c2, c3, c4, 3.0, gray_colormap);
    }
 
-   for (double angle = dr; (a + b * angle) < canvas.image().width() / 2; angle += dr)
+   for (double angle = dr; (a + b * angle) < canvas.image().width() / 2.0; angle += dr)
    {
       for (std::size_t i = 0; i < spiral.size(); ++i)
       {
