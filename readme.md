@@ -34,7 +34,7 @@ The C++ Bitmap Library implementation is compatible with the following C++ compi
 
 ----
 
-#### Simple Example 1
+#### Simple Example 1 - Count a particular colour in the given image
 The following example will open a bitmap image called *'input.bmp'* and count
 the number of pixels that have a red channel value of 111 and larger, then
 proceed to print the count to stdout.
@@ -79,7 +79,7 @@ int main()
 
 ----
 
-#### Simple Example 2
+#### Simple Example 2 - Draw a rectangle then a circle
 The following example will create a bitmap of dimensions 200x200 pixels, set the
 background colour to orange, then proceed to draw a circle centered in the middle
 of the bitmap of radius 50 pixels and of colour red then a rectangle centered in
@@ -114,7 +114,7 @@ int main()
 
 ----
 
-#### Simple Example 3
+#### Simple Example 3 - Mandelbrot Set Fractal
 The following example will render the Mandelbrot set fractal and save
 the generated bitmap as *'mandelbrot_set.bmp'*.
 
@@ -183,7 +183,7 @@ int main()
 
 ----
 
-#### Simple Example 4
+#### Simple Example 4 - Julia Set Fractal
 The following example will render the Julia set fractal and save the
 generated bitmap as *'julia_set.bmp'*.
 
@@ -244,7 +244,7 @@ int main()
 
 ----
 
-#### Simple Example 5
+#### Simple Example 5 - Magnifying Lens Distortion
 The following example will render a baseline image using a combination
 of plasma and checkered pattern effects. Then proceed to apply a lens
 distortion upon the base image. Finally both the base and the lens
@@ -333,7 +333,7 @@ int main()
 
 ----
 
-#### Simple Example 6
+#### Simple Example 6 - Swirl Effect
 The following example will render a baseline image using a combination
 of plasma and checkered pattern effects. Then proceed to apply a swirl
 distortion upon the base image. Finally both the base and the swirl
@@ -421,7 +421,7 @@ int main()
 
 ----
 
-#### Simple Example 7
+#### Simple Example 7 - Maze Generation
 The following example will render a maze generated using a simple
 recursive backtracking algorithm. The example demonstrates the use of
 the drawing and colouring functionalities. Once the maze has been
@@ -565,7 +565,7 @@ int main()
 
 ----
 
-#### Simple Example 8
+#### Simple Example 8 - Fireballs Along A Lissajous Curve
 The following example is an old-school graphical effect of rendering
 fireballs that have been placed equidistant to their immediate
 neighbours following a Lissajous curve. The fireballs will then
@@ -734,7 +734,71 @@ int main()
 
 ----
 
-#### Simple Example 9
+#### Simple Example 9 - Sierpinski Triangle Via Monte-Carlo Method
+The following example will render the Sierpinski triangle fractal
+using a linear difference equation based monte-carlo process, and then
+proceed to save the generated bitmap as *'sierpinski_triangle.bmp'*.
+
+```c++
+#include <cmath>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+struct point_t { double x,y; };
+
+int main()
+{
+   const int canvas_width  = 600;
+   const int canvas_height = 400;
+
+   cartesian_canvas canvas(canvas_width,canvas_height);
+
+   {
+      // Render background using Plasma effect
+      const double c1 = 0.9;
+      const double c2 = 0.3;
+      const double c3 = 0.5;
+      const double c4 = 0.7;
+
+      ::srand(0xA5AA5AA5);
+
+      plasma(canvas.image(), c1, c2, c3, c4, 3.5, jet_colormap);
+   }
+
+   point_t triangle[3];
+
+   triangle[0].x = 0;
+   triangle[0].y = +canvas_height / 2.0;
+   triangle[1].x = -canvas_width  / 2.0;
+   triangle[1].y = -canvas_height / 2.0;
+   triangle[2].x = +canvas_width  / 2.0;
+   triangle[2].y = -canvas_height / 2.0;
+
+   point_t pnt = triangle[0];
+
+   const std::size_t max_iterations = 1000000;
+
+   for (std::size_t i = 0; i < max_iterations; ++i)
+   {
+      const point_t target_point = triangle[rand() % 3];
+
+      pnt.x += (target_point.x - pnt.x) / 2.0;
+      pnt.y += (target_point.y - pnt.y) / 2.0;
+
+      canvas.plot_pen_pixel(pnt.x,pnt.y);
+   }
+
+   canvas.image().save_image("sierpinski_triangle.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/sierpinski_triangle.png?raw=true "C++ Bitmap Library Sierpinski Triangle Via Monte-Carlo Method - By Arash Partow")
+
+----
+
+#### Simple Example 10 - Circles And Equilateral Triangles
 The following example randomly generate circles and proceed to
 inscribe multiple levels of inner equilateral triangles. The example
 demonstrates the use of the cartesian canvas, pen functions, various
@@ -825,7 +889,7 @@ int main()
 
 ----
 
-#### Simple Example 10
+#### Simple Example 11 - Archimedean Spirals
 The following example renders Archimedean spirals upon a gray-scale
 plasma background. The example demonstrates the use of the cartesian
 canvas, pen functions, and colour maps. Once complete the rendering
@@ -919,7 +983,7 @@ int main()
 
 ----
 
-#### Simple Example 11
+#### Simple Example 12 - Image Shuffle
 The following example will take as input *'tiger.bmp'*. Then proceed
 to dissect the image into 9 cells of 3x3, then proceed to randomly
 shuffle cells. The example demonstrates the copying to-and-from
