@@ -569,7 +569,7 @@ int main()
 The following example is an old-school graphical effect of rendering
 fireballs that have been placed equidistant to their immediate
 neighbours following a Lissajous curve. The fireballs will then
-proceed move within the plane using the curve as their path. The
+proceed to move within the plane using the curve as their path. The
 example demonstrates the construction of a piecewise colour palette
 and the response_image functionality. After having 'simulated' N-
 frames, the final frame will be converted to a bitmap and then saved
