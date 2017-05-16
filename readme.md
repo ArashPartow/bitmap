@@ -722,7 +722,7 @@ int main()
       }
    }
 
-   convert_rsp_to_image(resp_image,fire_palette,image);
+   convert_rsp_to_image(resp_image, fire_palette, image);
 
    image.save_image("fireballs.bmp");
 
