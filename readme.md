@@ -144,7 +144,7 @@ int main()
          nextr = nexti = 0;
          prevr = previ = 0;
 
-         for (unsigned int i = 0; i < max_iterations; i++)
+         for (unsigned int i = 0; i < max_iterations; ++i)
          {
             prevr = nextr;
             previ = nexti;
@@ -154,18 +154,15 @@ int main()
 
             if (((nextr * nextr) + (nexti * nexti)) > 4)
             {
-               if (max_iterations != i)
-               {
-                  using namespace std;
+               using namespace std;
 
-                  const double z = sqrt(nextr * nextr + nexti * nexti);
+               const double z = sqrt(nextr * nextr + nexti * nexti);
 
-                  //https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_.28smooth.29_coloring
-                  unsigned int index = static_cast<unsigned int>
-                     (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
+               //https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_.28smooth.29_coloring
+               const unsigned int index = static_cast<unsigned int>
+                  (1000.0 * log2(1.75 + i - log2(log2(z))) / log2(max_iterations));
 
-                  fractal.set_pixel(x, y, jet_colormap[index]);
-               }
+               fractal.set_pixel(x, y, jet_colormap[index]);
 
                break;
             }
@@ -211,7 +208,7 @@ int main()
          double nextr = 1.5 * (2.0 * x / fractal.width () - 1.0);
          double nexti =       (2.0 * y / fractal.height() - 1.0);
 
-         for (unsigned int i = 0; i < max_iterations; i++)
+         for (unsigned int i = 0; i < max_iterations; ++i)
          {
             prevr = nextr;
             previ = nexti;
@@ -221,12 +218,9 @@ int main()
 
             if (((nextr * nextr) + (nexti * nexti)) > 4)
             {
-               if (max_iterations != i)
-               {
-                  rgb_t c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
+               rgb_t c = hsv_colormap[static_cast<int>((1000.0 * i) / max_iterations)];
 
-                  fractal.set_pixel(x, y, c);
-               }
+               fractal.set_pixel(x, y, c);
 
                break;
             }
