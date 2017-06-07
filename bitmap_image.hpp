@@ -409,7 +409,7 @@ public:
 
       if (clear)
       {
-         std::fill(data_.begin(),data_.end(),0x00);
+         std::fill(data_.begin(),data_.end(),static_cast<unsigned char>(0x00));
       }
    }
 
@@ -1618,14 +1618,14 @@ inline bool operator==(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   == c1  .red) &&
           (c0.green == c1.green) &&
-          (c0.blue  == c1 .blue);
+          (c0.blue  == c1 .blue) ;
 }
 
 inline bool operator!=(const rgb_t& c0, const rgb_t& c1)
 {
    return (c0.red   != c1  .red) ||
           (c0.green != c1.green) ||
-          (c0.blue  != c1 .blue);
+          (c0.blue  != c1 .blue) ;
 }
 
 inline std::size_t hamming_distance(const rgb_t& c0, const rgb_t& c1)
@@ -1946,18 +1946,18 @@ inline void plasma(bitmap_image& image,
 {
    // Note: c1,c2,c3,c4 -> [0.0,1.0]
 
-   double half_width  = ( width / 2.0);
-   double half_height = (height / 2.0);
+   const double half_width  = ( width / 2.0);
+   const double half_height = (height / 2.0);
 
    if ((width >= 1.0) || (height >= 1.0))
    {
-      double corner1 = (c1 + c2) / 2.0;
-      double corner2 = (c2 + c3) / 2.0;
-      double corner3 = (c3 + c4) / 2.0;
-      double corner4 = (c4 + c1) / 2.0;
-      double center  = (c1 + c2 + c3 + c4) / 4.0 +
-                       ((1.0 * ::rand() /(1.0 * RAND_MAX))  - 0.5) * // should use a better rng
-                       ((1.0 * half_width + half_height) / (image.width() + image.height()) * roughness);
+      const double corner1 = (c1 + c2) / 2.0;
+      const double corner2 = (c2 + c3) / 2.0;
+      const double corner3 = (c3 + c4) / 2.0;
+      const double corner4 = (c4 + c1) / 2.0;
+            double center  = (c1 + c2 + c3 + c4) / 4.0 +
+                             ((1.0 * ::rand() /(1.0 * RAND_MAX))  - 0.5) * // should use a better rng
+                             ((1.0 * half_width + half_height) / (image.width() + image.height()) * roughness);
 
       center = std::min<double>(std::max<double>(0.0,center),1.0);
 
@@ -2040,31 +2040,33 @@ inline void hierarchical_psnr_r(const double& x,     const double& y,
 {
    if ((width <= 4.0) || (height <= 4.0))
    {
-      double psnr = psnr_region(
-                                 static_cast<unsigned int>(x),
-                                 static_cast<unsigned int>(y),
-                                 static_cast<unsigned int>(width),
-                                 static_cast<unsigned int>(height),
-                                 image1, image2
-                               );
+      const double psnr = psnr_region
+                          (
+                            static_cast<unsigned int>(x),
+                            static_cast<unsigned int>(y),
+                            static_cast<unsigned int>(width),
+                            static_cast<unsigned int>(height),
+                            image1, image2
+                          );
 
       if (psnr < threshold)
       {
          rgb_t c = colormap[static_cast<unsigned int>(1000.0 * (1.0 - (psnr / threshold)))];
 
-         image2.set_region(
-                            static_cast<unsigned int>(x),
-                            static_cast<unsigned int>(y),
-                            static_cast<unsigned int>(width + 1),
-                            static_cast<unsigned int>(height + 1),
-                            c.red, c.green, c.blue
-                          );
+         image2.set_region
+                (
+                  static_cast<unsigned int>(x),
+                  static_cast<unsigned int>(y),
+                  static_cast<unsigned int>(width + 1),
+                  static_cast<unsigned int>(height + 1),
+                  c.red, c.green, c.blue
+                );
       }
    }
    else
    {
-      double half_width  = ( width / 2.0);
-      double half_height = (height / 2.0);
+      const double half_width  = ( width / 2.0);
+      const double half_height = (height / 2.0);
 
       hierarchical_psnr_r(x             , y              , half_width, half_height, image1, image2, threshold, colormap);
       hierarchical_psnr_r(x + half_width, y              , half_width, half_height, image1, image2, threshold, colormap);
@@ -2083,13 +2085,21 @@ inline void hierarchical_psnr(bitmap_image& image1, bitmap_image& image2, const 
       return;
    }
 
-   double psnr = psnr_region(0,0,image1.width(),image1.height(),image1,image2);
+   const double psnr = psnr_region
+                       (
+                         0, 0, image1.width(), image1.height(),
+                         image1, image2
+                       );
 
    if (psnr < threshold)
    {
-      hierarchical_psnr_r(0, 0, image1.width(), image1.height(),
-                          image1, image2,
-                          threshold, colormap);
+      hierarchical_psnr_r
+      (
+        0, 0, image1.width(), image1.height(),
+        image1, image2,
+        threshold,
+        colormap
+      );
    }
 }
 
@@ -2576,8 +2586,8 @@ public:
          p3.first  = (p[0].first + ((p[1].second - p[0].second) / (p[2].second - p[0].second)) * (p[2].first - p[0].first));
          p3.second = p[1].second;
 
-         dm.bottom(p[0], p[1],   p3);
-         dm.top   (p[1],   p3, p[2]);
+         dm.bottom(p[0], p[1], p3  );
+         dm.top   (p[1], p3  , p[2]);
       }
    }
 
@@ -3108,22 +3118,27 @@ inline void sobel_operator(const bitmap_image& src_image,
       }
    }
 
-   dst_image.setwidth_height(im1.width(), im1.height());
+   dst_image.setwidth_height
+             (
+               static_cast<unsigned int>(im1.width()),
+               static_cast<unsigned int>(im1.height())
+             );
+
    dst_image.import_gray_scale_clamped(&im1(0,0));
 }
 
 enum palette_name
 {
-  e_red,           e_scarlet,      e_vermilion,        e_tangelo,         e_orange,
-  e_gamboge,       e_amber,        e_gold,             e_yellow,          e_apple_green,
-  e_lime_green,    e_spring_bud,   e_chartreuse_green, e_pistachio,       e_harlequin,
-  e_sap_green,     e_green,        e_emerald_green,    e_malachite_green, e_sea_green,
-  e_spring_green,  e_aquamarine,   e_turquoise,        e_opal,            e_cyan,
-  e_arctic_blue,   e_cerulean,     e_cornflower_blue,  e_azure,           e_cobalt_blue,
-  e_sapphire_blue, e_phthalo_blue, e_blue,             e_persian_blue,    e_indigo,
-  e_blue_violet,   e_violet,       e_purple,           e_mulberry,        e_heliotrope,
-  e_magenta,       e_orchid,       e_fuchsia,          e_cerise,          e_rose,
-  e_raspberry,     e_crimson,      e_amaranth,         e_white,           e_black
+   e_red,           e_scarlet,      e_vermilion,        e_tangelo,         e_orange,
+   e_gamboge,       e_amber,        e_gold,             e_yellow,          e_apple_green,
+   e_lime_green,    e_spring_bud,   e_chartreuse_green, e_pistachio,       e_harlequin,
+   e_sap_green,     e_green,        e_emerald_green,    e_malachite_green, e_sea_green,
+   e_spring_green,  e_aquamarine,   e_turquoise,        e_opal,            e_cyan,
+   e_arctic_blue,   e_cerulean,     e_cornflower_blue,  e_azure,           e_cobalt_blue,
+   e_sapphire_blue, e_phthalo_blue, e_blue,             e_persian_blue,    e_indigo,
+   e_blue_violet,   e_violet,       e_purple,           e_mulberry,        e_heliotrope,
+   e_magenta,       e_orchid,       e_fuchsia,          e_cerise,          e_rose,
+   e_raspberry,     e_crimson,      e_amaranth,         e_white,           e_black
 };
 
 const rgb_t palette_colormap[] = {
