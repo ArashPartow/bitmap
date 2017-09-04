@@ -160,7 +160,7 @@ public:
    inline void get_pixel(const unsigned int x, const unsigned int y,
                          unsigned char& red,
                          unsigned char& green,
-                         unsigned char& blue)
+                         unsigned char& blue) const
    {
       const unsigned int y_offset = y * row_increment_;
       const unsigned int x_offset = x * bytes_per_pixel_;
@@ -172,7 +172,7 @@ public:
 
    template <typename RGB>
    inline void get_pixel(const unsigned int x, const unsigned int y,
-                         RGB& colour)
+                         RGB& colour) const
    {
       get_pixel(x, y, colour.red, colour.green, colour.blue);
    }
