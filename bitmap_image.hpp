@@ -119,7 +119,7 @@ public:
 
    inline void clear(const unsigned char v = 0x00)
    {
-      std::fill(data_.begin(),data_.end(),v);
+      std::fill(data_.begin(), data_.end(), v);
    }
 
    inline unsigned char red_channel(const unsigned int x, const unsigned int y) const
@@ -160,7 +160,7 @@ public:
    inline void get_pixel(const unsigned int x, const unsigned int y,
                          unsigned char& red,
                          unsigned char& green,
-                         unsigned char& blue)
+                         unsigned char& blue) const
    {
       const unsigned int y_offset = y * row_increment_;
       const unsigned int x_offset = x * bytes_per_pixel_;
@@ -171,8 +171,7 @@ public:
    }
 
    template <typename RGB>
-   inline void get_pixel(const unsigned int x, const unsigned int y,
-                         RGB& colour)
+   inline void get_pixel(const unsigned int x, const unsigned int y, RGB& colour) const
    {
       get_pixel(x, y, colour.red, colour.green, colour.blue);
    }
@@ -224,7 +223,7 @@ public:
          const unsigned char* itr2     = source_image.row(y);
          const unsigned char* itr2_end = itr2 + source_image.width_ * bytes_per_pixel_;
 
-         std::copy(itr2,itr2_end,itr1);
+         std::copy(itr2, itr2_end, itr1);
       }
 
       return true;
@@ -234,7 +233,7 @@ public:
                       const unsigned int& y     ,
                       const unsigned int& width ,
                       const unsigned int& height,
-                      bitmap_image& dest_image  )
+                      bitmap_image& dest_image  ) const
    {
       if ((x + width ) > width_ ) { return false; }
       if ((y + height) > height_) { return false; }
@@ -253,7 +252,7 @@ public:
          unsigned char* itr1_end = itr1 + (width * bytes_per_pixel_);
          unsigned char* itr2     = dest_image.row(r);
 
-         std::copy(itr1,itr1_end,itr2);
+         std::copy(itr1, itr1_end, itr2);
       }
 
       return true;
@@ -263,7 +262,7 @@ public:
                                const unsigned int& cy    ,
                                const unsigned int& width ,
                                const unsigned int& height,
-                               bitmap_image& dest_image  )
+                               bitmap_image& dest_image  ) const
    {
       return region(cx - (width / 2), cy - (height / 2),
                     width, height,
@@ -284,7 +283,7 @@ public:
          unsigned char* itr     = row(r + y) + x * bytes_per_pixel_;
          unsigned char* itr_end = itr + (width * bytes_per_pixel_);
 
-         std::fill(itr,itr_end,value);
+         std::fill(itr, itr_end, value);
       }
 
       return true;
@@ -409,7 +408,7 @@ public:
 
       if (clear)
       {
-         std::fill(data_.begin(),data_.end(),static_cast<unsigned char>(0x00));
+         std::fill(data_.begin(), data_.end(), static_cast<unsigned char>(0x00));
       }
    }
 
@@ -749,7 +748,7 @@ public:
       }
    }
 
-   inline void export_ycbcr(double* y, double* cb, double* cr)
+   inline void export_ycbcr(double* y, double* cb, double* cr) const
    {
       if (bgr_mode != channel_mode_)
          return;
@@ -917,7 +916,7 @@ public:
       }
    }
 
-   inline void subsample(bitmap_image& dest)
+   inline void subsample(bitmap_image& dest) const
    {
       /*
          Half sub-sample of original image.
@@ -1045,7 +1044,7 @@ public:
       }
    }
 
-   inline void upsample(bitmap_image& dest)
+   inline void upsample(bitmap_image& dest) const
    {
       /*
          2x up-sample of original image.
@@ -1107,9 +1106,9 @@ public:
          return;
       }
 
-      unsigned char* itr1       = data();
-      unsigned char* itr1_end   = end();
-      const unsigned char* itr2 = image.data();
+      unsigned char* itr1           = data();
+      const unsigned char* itr1_end = end();
+      const unsigned char* itr2     = image.data();
 
       double alpha_compliment = 1.0 - alpha;
 
@@ -1131,7 +1130,7 @@ public:
          return 0.0;
       }
 
-      unsigned char*       itr1 = data();
+      const unsigned char* itr1 = data();
       const unsigned char* itr2 = image.data();
 
       double mse = 0.0;
@@ -1171,9 +1170,9 @@ public:
 
       for (unsigned int r = 0; r < height; ++r)
       {
-         unsigned char* itr1       = row(r + y) + x * bytes_per_pixel_;
-         unsigned char* itr1_end   = itr1 + (width * bytes_per_pixel_);
-         const unsigned char* itr2 = image.row(r);
+         const unsigned char* itr1     = row(r + y) + x * bytes_per_pixel_;
+         const unsigned char* itr1_end = itr1 + (width * bytes_per_pixel_);
+         const unsigned char* itr2     = image.row(r);
 
          while (itr1 != itr1_end)
          {
@@ -1195,17 +1194,17 @@ public:
       }
    }
 
-   inline void histogram(const color_plane color, double hist[256])
+   inline void histogram(const color_plane color, double hist[256]) const
    {
-      std::fill(hist,hist + 256,0.0);
+      std::fill(hist, hist + 256, 0.0);
 
-      for (unsigned char* itr = (data() + offset(color)); itr < end(); itr += bytes_per_pixel_)
+      for (const unsigned char* itr = (data() + offset(color)); itr < end(); itr += bytes_per_pixel_)
       {
          ++hist[(*itr)];
       }
    }
 
-   inline void histogram_normalized(const color_plane color, double hist[256])
+   inline void histogram_normalized(const color_plane color, double hist[256]) const
    {
       histogram(color,hist);
 
@@ -1219,7 +1218,7 @@ public:
       }
    }
 
-   inline unsigned int offset(const color_plane color)
+   inline unsigned int offset(const color_plane color) const
    {
       switch (channel_mode_)
       {
@@ -1303,7 +1302,7 @@ private:
 
       void clear()
       {
-         std::memset(this,0x00,sizeof(bitmap_file_header));
+         std::memset(this, 0x00, sizeof(bitmap_file_header));
       }
    };
 
@@ -1338,7 +1337,7 @@ private:
 
       void clear()
       {
-         std::memset(this,0x00,sizeof(bitmap_information_header));
+         std::memset(this, 0x00, sizeof(bitmap_information_header));
       }
    };
 
@@ -1430,13 +1429,13 @@ private:
 
       if (big_endian())
       {
-         bih.size        = flip(bih.size                 );
-         bih.width       = flip(bih.width                );
-         bih.height      = flip(bih.height               );
-         bih.planes      = flip(bih.planes               );
-         bih.bit_count   = flip(bih.bit_count            );
-         bih.compression = flip(bih.compression          );
-         bih.size_image  = flip(bih.size_image           );
+         bih.size          = flip(bih.size               );
+         bih.width         = flip(bih.width              );
+         bih.height        = flip(bih.height             );
+         bih.planes        = flip(bih.planes             );
+         bih.bit_count     = flip(bih.bit_count          );
+         bih.compression   = flip(bih.compression        );
+         bih.size_image    = flip(bih.size_image         );
          bih.x_pels_per_meter = flip(bih.x_pels_per_meter);
          bih.y_pels_per_meter = flip(bih.y_pels_per_meter);
          bih.clr_used      = flip(bih.clr_used           );
@@ -1476,7 +1475,7 @@ private:
       }
    }
 
-   inline std::size_t file_size(const std::string& file_name)
+   inline std::size_t file_size(const std::string& file_name) const
    {
       std::ifstream file(file_name.c_str(),std::ios::in | std::ios::binary);
       if (!file) return 0;
@@ -1588,7 +1587,7 @@ private:
    }
 
    template <typename T>
-   inline T clamp(const T& v, const T& lower_range, const T& upper_range)
+   inline T clamp(const T& v, const T& lower_range, const T& upper_range) const
    {
       if (v < lower_range)
          return lower_range;
@@ -2117,25 +2116,25 @@ public:
 
    void rectangle(int x1, int y1, int x2, int y2)
    {
-      line_segment(x1,y1,x2,y1);
-      line_segment(x2,y1,x2,y2);
-      line_segment(x2,y2,x1,y2);
-      line_segment(x1,y2,x1,y1);
+      line_segment(x1, y1, x2, y1);
+      line_segment(x2, y1, x2, y2);
+      line_segment(x2, y2, x1, y2);
+      line_segment(x1, y2, x1, y1);
    }
 
    void triangle(int x1, int y1, int x2, int y2,int x3, int y3)
    {
-      line_segment(x1,y1,x2,y2);
-      line_segment(x2,y2,x3,y3);
-      line_segment(x3,y3,x1,y1);
+      line_segment(x1, y1, x2, y2);
+      line_segment(x2, y2, x3, y3);
+      line_segment(x3, y3, x1, y1);
    }
 
    void quadix(int x1, int y1, int x2, int y2,int x3, int y3, int x4, int y4)
    {
-      line_segment(x1,y1,x2,y2);
-      line_segment(x2,y2,x3,y3);
-      line_segment(x3,y3,x4,y4);
-      line_segment(x4,y4,x1,y1);
+      line_segment(x1, y1, x2, y2);
+      line_segment(x2, y2, x3, y3);
+      line_segment(x3, y3, x4, y4);
+      line_segment(x4, y4, x1, y1);
    }
 
    void line_segment(int x1, int y1, int x2, int y2)
@@ -2538,8 +2537,8 @@ public:
 
          void bottom(const point_t& p0, const point_t& p1, const point_t& p2)
          {
-            double m0 = (p1.first - p0.first) / (2.0 * (p1.second - p0.second));
-            double m1 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
+            const double m0 = (p1.first - p0.first) / (2.0 * (p1.second - p0.second));
+            const double m1 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
 
             double x0 = p0.first;
             double x1 = p0.first;
@@ -2555,8 +2554,8 @@ public:
 
          void top(const point_t& p0, const point_t& p1, const point_t& p2)
          {
-            double m0 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
-            double m1 = (p2.first - p1.first) / (2.0 * (p2.second - p1.second));
+            const double m0 = (p2.first - p0.first) / (2.0 * (p2.second - p0.second));
+            const double m1 = (p2.first - p1.first) / (2.0 * (p2.second - p1.second));
 
             double x0 = p2.first;
             double x1 = p2.first;
@@ -2975,7 +2974,7 @@ inline double find_nearest_wave_length(const rgb_t& c, const double increment = 
 
    for (double i = 0.0; i < max_wave_length; i += increment)
    {
-      rgb_t  curr_rgb = convert_wave_length_nm_to_rgb(i);
+      const rgb_t  curr_rgb = convert_wave_length_nm_to_rgb(i);
 
       if (c == curr_rgb)
       {
