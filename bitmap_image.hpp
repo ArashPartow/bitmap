@@ -50,28 +50,51 @@ public:
                     };
 
    bitmap_image()
-   : file_name_(""),
-     width_          (0),
+   : width_          (0),
      height_         (0),
      row_increment_  (0),
      bytes_per_pixel_(3),
      channel_mode_(bgr_mode)
    {}
 
-   bitmap_image(const std::string& filename)
-   : file_name_(filename),
-     width_          (0),
+   bitmap_image(std::istream& stream)
+   : width_          (0),
      height_         (0),
      row_increment_  (0),
      bytes_per_pixel_(0),
      channel_mode_(bgr_mode)
    {
-      load_bitmap();
+     if (stream)
+     {
+       load_bitmap(stream);
+     }
+     else
+     {
+       std::cerr << "bitmap_image::bitmap_image(std::istream& stream) ERROR: bitmap_image - stream is invalid!" << std::endl;
+     }
+   }
+
+   bitmap_image(const std::string& filename)
+   : width_          (0),
+     height_         (0),
+     row_increment_  (0),
+     bytes_per_pixel_(0),
+     channel_mode_(bgr_mode)
+   {
+      std::ifstream stream(file_name_.c_str(),std::ios::binary);
+      if (stream)
+      {
+         load_bitmap(stream);
+      }
+      else
+      {
+         std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - file " << file_name_ << " not found!" << std::endl;
+         return;
+      }
    }
 
    bitmap_image(const unsigned int width, const unsigned int height)
-   : file_name_(""),
-     width_ (width ),
+   : width_ (width ),
      height_(height),
      row_increment_  (0),
      bytes_per_pixel_(3),
@@ -81,8 +104,7 @@ public:
    }
 
    bitmap_image(const bitmap_image& image)
-   : file_name_(image.file_name_),
-     width_    (image.width_    ),
+   : width_    (image.width_    ),
      height_   (image.height_   ),
      row_increment_  (0),
      bytes_per_pixel_(3),
@@ -96,7 +118,6 @@ public:
    {
       if (this != &image)
       {
-         file_name_       = image.file_name_;
          bytes_per_pixel_ = image.bytes_per_pixel_;
          width_           = image.width_;
          height_          = image.height_;
@@ -412,13 +433,11 @@ public:
       }
    }
 
-   void save_image(const std::string& file_name) const
+   void save_image(std::ostream& stream) const
    {
-      std::ofstream stream(file_name.c_str(),std::ios::binary);
-
       if (!stream)
       {
-         std::cerr << "bitmap_image::save_image(): Error - Could not open file "  << file_name << " for writing!" << std::endl;
+         std::cerr << "bitmap_image::save_image(): Error - Could not open stream for writing!" << std::endl;
          return;
       }
 
@@ -459,6 +478,19 @@ public:
       }
 
       stream.close();
+   }
+
+   void save_image(const std::string& file_name) const
+   {
+      std::ofstream stream(file_name.c_str(),std::ios::binary);
+
+      if (!stream)
+      {
+         std::cerr << "bitmap_image::save_image(): Error - Could not open file "  << file_name << " for writing!" << std::endl;
+         return;
+      }
+
+      save_image(stream);      
    }
 
    inline void set_all_ith_bits_low(const unsigned int bitr_index)
@@ -1489,16 +1521,8 @@ private:
       data_.resize(height_ * row_increment_);
    }
 
-   void load_bitmap()
+   void load_bitmap(std::istream& stream)
    {
-      std::ifstream stream(file_name_.c_str(),std::ios::binary);
-
-      if (!stream)
-      {
-         std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - file " << file_name_ << " not found!" << std::endl;
-         return;
-      }
-
       width_  = 0;
       height_ = 0;
 
@@ -1596,8 +1620,6 @@ private:
       else
          return v;
    }
-
-   std::string  file_name_;
    unsigned int width_;
    unsigned int height_;
    unsigned int row_increment_;
