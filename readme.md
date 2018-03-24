@@ -415,7 +415,76 @@ int main()
 
 ----
 
-#### Simple Example 7 - Maze Generation
+#### Simple Example 7 - Frosted Glass Effect
+The following example will render a baseline image using a
+combination of plasma and checkered pattern effects. Then
+proceed to apply a frosted glass diffusion effect upon the
+base image. Finally the frosted glass version of the image
+will be saved to 'glass_effect.bmp'.
+
+```c++
+#include <algorithm>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   const int width       = 600;
+   const int height      = 600;
+   const int kernel_size =  10;
+
+   bitmap_image base(width,height);
+
+   base.clear();
+
+   {
+      const double c1 = 0.8;
+      const double c2 = 0.4;
+      const double c3 = 0.2;
+      const double c4 = 0.6;
+
+      ::srand(0xA5AA57A5);
+
+      plasma(base, 0, 0, base.width(), base.height(), c1, c2, c3, c4, 3.0, jet_colormap);
+
+      checkered_pattern(30, 30, 230, bitmap_image::  red_plane, base);
+      checkered_pattern(30, 30,   0, bitmap_image::green_plane, base);
+      checkered_pattern(30, 30, 100, bitmap_image:: blue_plane, base);
+   }
+
+   bitmap_image glass_image(base.width(),base.height());
+
+   glass_image = base;
+
+   for (int y = 0; y < height; ++y)
+   {
+      for (int x = 0; x < width; ++x)
+      {
+         const unsigned int min_x = std::max(0, x - kernel_size);
+         const unsigned int min_y = std::max(0, y - kernel_size);
+         const unsigned int max_x = std::min(x + kernel_size, width  - 1);
+         const unsigned int max_y = std::min(y + kernel_size, height - 1);
+         const unsigned int dx    = (max_x - min_x);
+         const unsigned int dy    = (max_y - min_y);
+         const unsigned int N     = rand() % (dx * dy);
+         const unsigned int cx    = (N % dx) + min_x;
+         const unsigned int cy    = (N / dx) + min_y;
+
+         glass_image.set_pixel(x, y, base.get_pixel(cx, cy));
+      }
+   }
+
+   glass_image.save_image("glass_effect.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/glass_effect.png?raw=true "C++ Bitmap Library Frosted Glass Effect Example - By Arash Partow")
+
+----
+
+#### Simple Example 8 - Maze Generation
 The following example will render a maze generated using a simple
 recursive backtracking algorithm. The example demonstrates the use of
 the drawing and colouring functionalities. Once the maze has been
@@ -435,7 +504,7 @@ const move_t move[5] =
       {
          { 0, 0, 0 },
          // North        East         South         West
-         { 0,-1, S }, { 1, 0, W }, { 0, 1, N },  {-1, 0, E }
+         { 0, -1, S }, { 1, 0, W }, { 0, 1, N },  { -1, 0, E }
       };
 
 const int movemap[] = {0, 1, 2, 0, 3, 0, 0, 0, 4};
@@ -463,9 +532,9 @@ void generate_maze(int cx, int cy, response_image<int>& maze)
 
       if (
            (x < 0) || (y < 0)        ||
-           (untouched != maze(x,y))  ||
            (x >= (int)maze.width ()) ||
-           (y >= (int)maze.height())
+           (y >= (int)maze.height()) ||
+           (untouched != maze(x,y))
          )
          continue;
 
@@ -559,7 +628,7 @@ int main()
 
 ----
 
-#### Simple Example 8 - Fireballs Along A Lissajous Curve
+#### Simple Example 9 - Fireballs Along A Lissajous Curve
 The following example is an old-school graphical effect of rendering
 fireballs that have been placed equidistant to their immediate
 neighbours following a Lissajous curve. The fireballs will then
@@ -728,7 +797,7 @@ int main()
 
 ----
 
-#### Simple Example 9 - Sierpinski Triangle Via Monte-Carlo Method
+#### Simple Example 10 - Sierpinski Triangle Via Monte-Carlo Method
 The following example will render the Sierpinski triangle fractal
 using a linear difference equation based monte-carlo process, and then
 proceed to save the generated bitmap as *'sierpinski_triangle.bmp'*.
@@ -792,7 +861,7 @@ int main()
 
 ----
 
-#### Simple Example 10 - Circles And Equilateral Triangles
+#### Simple Example 11 - Circles And Equilateral Triangles
 The following example randomly generate circles and proceed to
 inscribe multiple levels of inner equilateral triangles. The example
 demonstrates the use of the cartesian canvas, pen functions, various
@@ -883,7 +952,7 @@ int main()
 
 ----
 
-#### Simple Example 11 - Archimedean Spirals
+#### Simple Example 12 - Archimedean Spirals
 The following example renders Archimedean spirals upon a gray-scale
 plasma background. The example demonstrates the use of the cartesian
 canvas, pen functions, and colour maps. Once complete the rendering
@@ -977,7 +1046,7 @@ int main()
 
 ----
 
-#### Simple Example 12 - Image Shuffle
+#### Simple Example 13 - Image Shuffle
 The following example will take as input *'tiger.bmp'*. Then proceed
 to dissect the image into 9 cells of 3x3, then proceed to randomly
 shuffle cells. The example demonstrates the copying to-and-from
@@ -1039,6 +1108,112 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/shuffled.png?raw=true "C++ Bitmap Library Image Shuffle - By Arash Partow")
+
+----
+
+#### Simple Example 14 - Phyllotaxis Spiral
+The following example renders a Phyllotaxis spiral upon a copper
+plasma background. The example demonstrates the use of the cartesian
+canvas, circle fill function, and colour maps. Once complete the
+rendering will be saved to disk with the name: *'phyllotaxis.bmp'*.
+
+```c++
+#include <cmath>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   const int canvas_width  = 600;
+   const int canvas_height = 600;
+
+   const double pi       = 3.1415926535897932384626433832795028841971;
+   const double phi      = pi * (3.0 - std::sqrt(5.0));
+   const double radius   = (std::min(canvas_width, canvas_height) / 2.0) - 5.0;
+   const double N        = 1200.0;
+   const double spread   = radius / std::sqrt(N);
+   const double p_radius = std::floor(spread / 2.0);
+
+   cartesian_canvas canvas(canvas_width,canvas_height);
+
+   {
+      // Render background using Plasma effect
+      const double c1 = 0.9;
+      const double c2 = 0.5;
+      const double c3 = 0.3;
+      const double c4 = 0.7;
+
+      bitmap_image& image = canvas.image();
+
+      ::srand(0xA5AA5AA5);
+
+      plasma(image, 0, 0, image.width(), image.height(), c1, c2, c3, c4, 3.0, copper_colormap);
+   }
+
+   for (double i = 0.0; i < N; ++i)
+   {
+      const double theta = phi * i;
+      const double d     = spread * std::sqrt(i);
+      const double x     = d * std::cos(theta);
+      const double y     = d * std::sin(theta);
+
+      canvas.pen_color(hsv_colormap[static_cast<std::size_t>(1000.0 * (i  / N))]);
+      canvas.fill_circle(x, y, p_radius);
+   }
+
+   canvas.image().save_image("phyllotaxis.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/phyllotaxis.png?raw=true "C++ Bitmap Library Phyllotaxis Spiral - By Arash Partow")
+
+----
+
+#### Simple Example 15 - Pointillism Effect
+The following example will render an input image of a *Sunflower*
+using an approximation of the Pointillism painting technique. Once
+the rendering is complete the image will be saved to disk with the
+name: *'pointillist.bmp'*.
+
+```c++
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image base("sunflower.bmp");
+
+   cartesian_canvas canvas(base.width(),base.height());
+   canvas.image() = base;
+
+   const int pixel_count  = base.width() * base.height();
+   const int N            = static_cast<int>(pixel_count * 0.03); // 3% of pixels
+   const double rnd_ratio = pixel_count / (1.0 + RAND_MAX);
+
+   ::srand(0xA57A57A5);
+
+   for (int i = 0; i < N; ++i)
+   {
+      const int    r  = static_cast<int>(rand() * rnd_ratio);
+      const int    x  = (r % base.width());
+      const int    y  = (r / base.width());
+      const double cx = x - (base.width() / 2.0);
+      const double cy = (base.height() / 2.0) - y;
+      const double radius = 1.0 + (r % 7);
+
+      canvas.pen_color(base.get_pixel(x, y));
+      canvas.fill_circle(cx, cy, radius);
+   }
+
+   canvas.image().save_image("pointillist.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/pointillist.png?raw=true "C++ Bitmap Library Pointillism Effect - By Arash Partow")
 
 ----
 
