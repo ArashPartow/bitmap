@@ -1061,10 +1061,10 @@ int main()
 
    const double pi       = 3.1415926535897932384626433832795028841971;
    const double phi      = pi * (3.0 - std::sqrt(5.0));
-   const double radius   = (std::min(canvas_width, canvas_height) / 2.0) - 10.0;
-   const double p_radius = 4.0;
-   const double N        = 1000.0;
+   const double radius   = (std::min(canvas_width, canvas_height) / 2.0) - 5.0;
+   const double N        = 1200.0;
    const double spread   = radius / std::sqrt(N);
+   const double p_radius = std::floor(spread / 2.0);
 
    cartesian_canvas canvas(canvas_width,canvas_height);
 
@@ -1089,7 +1089,7 @@ int main()
       const double x     = d * std::cos(theta);
       const double y     = d * std::sin(theta);
 
-      canvas.pen_color(hsv_colormap[((int)i) % 1000]);
+      canvas.pen_color(hsv_colormap[static_cast<std::size_t>(1000.0 * (i  / N))]);
       canvas.fill_circle(x, y, p_radius);
    }
 
