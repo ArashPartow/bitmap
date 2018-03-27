@@ -49,6 +49,13 @@ public:
                        red_plane   = 2
                     };
 
+   struct rgb_t
+   {
+      unsigned char   red;
+      unsigned char green;
+      unsigned char  blue;
+   };
+
    bitmap_image()
    : file_name_(""),
      width_          (0),
@@ -164,16 +171,24 @@ public:
    {
       const unsigned int y_offset = y * row_increment_;
       const unsigned int x_offset = x * bytes_per_pixel_;
+      const unsigned int offset   = y_offset + x_offset;
 
-      blue  = data_[y_offset + x_offset + 0];
-      green = data_[y_offset + x_offset + 1];
-      red   = data_[y_offset + x_offset + 2];
+      blue  = data_[offset + 0];
+      green = data_[offset + 1];
+      red   = data_[offset + 2];
    }
 
    template <typename RGB>
    inline void get_pixel(const unsigned int x, const unsigned int y, RGB& colour) const
    {
       get_pixel(x, y, colour.red, colour.green, colour.blue);
+   }
+
+   inline rgb_t get_pixel(const unsigned int x, const unsigned int y) const
+   {
+      rgb_t colour;
+      get_pixel(x, y, colour.red, colour.green, colour.blue);
+      return colour;
    }
 
    inline void set_pixel(const unsigned int x, const unsigned int y,
@@ -183,10 +198,11 @@ public:
    {
       const unsigned int y_offset = y * row_increment_;
       const unsigned int x_offset = x * bytes_per_pixel_;
+      const unsigned int offset   = y_offset + x_offset;
 
-      data_[y_offset + x_offset + 0] = blue;
-      data_[y_offset + x_offset + 1] = green;
-      data_[y_offset + x_offset + 2] = red;
+      data_[offset + 0] = blue;
+      data_[offset + 1] = green;
+      data_[offset + 2] = red;
    }
 
    template <typename RGB>
@@ -1606,12 +1622,7 @@ private:
    std::vector<unsigned char> data_;
 };
 
-struct rgb_t
-{
-   unsigned char   red;
-   unsigned char green;
-   unsigned char  blue;
-};
+typedef bitmap_image::rgb_t rgb_t;
 
 inline bool operator==(const rgb_t& c0, const rgb_t& c1)
 {
