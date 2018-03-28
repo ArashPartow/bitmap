@@ -1178,7 +1178,6 @@ the rendering is complete the image will be saved to disk with the
 name: *'pointillist.bmp'*.
 
 ```c++
-#include <cmath>
 #include <cstdlib>
 #include "bitmap_image.hpp"
 
