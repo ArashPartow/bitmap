@@ -1117,7 +1117,6 @@ plasma background. The example demonstrates the use of the cartesian
 canvas, circle fill function, and colour maps. Once complete the
 rendering will be saved to disk with the name: *'phyllotaxis.bmp'*.
 
-
 ```c++
 #include <cmath>
 #include <cstdlib>
@@ -1169,6 +1168,53 @@ int main()
 ```
 
 ![ScreenShot](http://www.partow.net/programming/bitmap/images/phyllotaxis.png?raw=true "C++ Bitmap Library Phyllotaxis Spiral - By Arash Partow")
+
+----
+
+#### Simple Example 15 - Pointillist Effect
+The following example will render an input image of a *Sunflower*
+using an approximation of the Pointillist painting technique. Once
+the rendering is complete the image will be saved to disk with the
+name: *'pointillist.bmp'*.
+
+```c++
+#include <cmath>
+#include <cstdlib>
+#include "bitmap_image.hpp"
+
+int main()
+{
+   bitmap_image base("sunflower.bmp");
+
+   cartesian_canvas canvas(base.width(),base.height());
+   canvas.image() = base;
+
+   const int pixel_count  = base.width() * base.height();
+   const int N            = static_cast<int>(pixel_count * 0.03); // 3% of pixels
+   const double rnd_ratio = pixel_count / (1.0 + RAND_MAX);
+
+   ::srand(0xA57A57A5);
+
+   for (int i = 0; i < N; ++i)
+   {
+      const int    r  = static_cast<int>(rand() * rnd_ratio);
+      const int    x  = (r % base.width());
+      const int    y  = (r / base.width());
+      const double cx = x - (base.width() / 2.0);
+      const double cy = (base.height() / 2.0) - y;
+      const double radius = 5.0 + (r % 5);
+
+      canvas.pen_color(base.get_pixel(x, y));
+      canvas.fill_circle(cx, cy, radius);
+   }
+
+   canvas.image().save_image("pointillist.bmp");
+
+   return 0;
+}
+```
+
+![ScreenShot](http://www.partow.net/programming/bitmap/images/pointillist.png?raw=true "C++ Bitmap Library Pointillist Effect - By Arash Partow")
 
 ----
 
