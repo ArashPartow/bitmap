@@ -1171,9 +1171,9 @@ int main()
 
 ----
 
-#### Simple Example 15 - Pointillist Effect
+#### Simple Example 15 - Pointillism Effect
 The following example will render an input image of a *Sunflower*
-using an approximation of the Pointillist painting technique. Once
+using an approximation of the Pointillism painting technique. Once
 the rendering is complete the image will be saved to disk with the
 name: *'pointillist.bmp'*.
 
@@ -1201,7 +1201,7 @@ int main()
       const int    y  = (r / base.width());
       const double cx = x - (base.width() / 2.0);
       const double cy = (base.height() / 2.0) - y;
-      const double radius = 5.0 + (r % 5);
+      const double radius = 1.0 + (r % 7);
 
       canvas.pen_color(base.get_pixel(x, y));
       canvas.fill_circle(cx, cy, radius);
@@ -1213,7 +1213,7 @@ int main()
 }
 ```
 
-![ScreenShot](http://www.partow.net/programming/bitmap/images/pointillist.png?raw=true "C++ Bitmap Library Pointillist Effect - By Arash Partow")
+![ScreenShot](http://www.partow.net/programming/bitmap/images/pointillist.png?raw=true "C++ Bitmap Library Pointillism Effect - By Arash Partow")
 
 ----
 
