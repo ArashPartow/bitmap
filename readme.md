@@ -504,7 +504,7 @@ const move_t move[5] =
       {
          { 0, 0, 0 },
          // North        East         South         West
-         { 0,-1, S }, { 1, 0, W }, { 0, 1, N },  {-1, 0, E }
+         { 0, -1, S }, { 1, 0, W }, { 0, 1, N },  { -1, 0, E }
       };
 
 const int movemap[] = {0, 1, 2, 0, 3, 0, 0, 0, 4};
@@ -532,9 +532,9 @@ void generate_maze(int cx, int cy, response_image<int>& maze)
 
       if (
            (x < 0) || (y < 0)        ||
-           (untouched != maze(x,y))  ||
            (x >= (int)maze.width ()) ||
-           (y >= (int)maze.height())
+           (y >= (int)maze.height()) ||
+           (untouched != maze(x,y))
          )
          continue;
 
