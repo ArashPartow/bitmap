@@ -129,6 +129,14 @@ public:
       std::fill(data_.begin(), data_.end(), v);
    }
 
+   inline void clear(const unsigned char red, const unsigned char green, const unsigned char blue) {
+      for (unsigned int x = 0; x < width(); x++) {
+        for (unsigned int y = 0; y < height(); y++) {
+          set_pixel(x, y, red, green, blue);
+        }
+      }
+   }
+
    inline unsigned char red_channel(const unsigned int x, const unsigned int y) const
    {
       return data_[(y * row_increment_) + (x * bytes_per_pixel_ + 2)];
