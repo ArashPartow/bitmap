@@ -51,6 +51,9 @@ public:
 
    struct rgb_t
    {
+      rgb_t(){}
+      rgb_t(unsigned char _red, unsigned char _green, unsigned char _blue):
+      red(_red), green(_green), blue(_blue){}
       unsigned char   red;
       unsigned char green;
       unsigned char  blue;
