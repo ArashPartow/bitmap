@@ -438,6 +438,13 @@ public:
          return;
       }
 
+      write_image(stream);
+
+      stream.close();
+   }
+
+   void write_image(std::ostream& stream) const
+   {
       bitmap_information_header bih;
 
       bih.width            = width_;
@@ -473,8 +480,6 @@ public:
          stream.write(reinterpret_cast<const char*>(data_ptr), sizeof(unsigned char) * bytes_per_pixel_ * width_);
          stream.write(padding_data,padding);
       }
-
-      stream.close();
    }
 
    inline void set_all_ith_bits_low(const unsigned int bitr_index)
@@ -1380,18 +1385,18 @@ private:
    }
 
    template <typename T>
-   inline void read_from_stream(std::ifstream& stream,T& t)
+   inline void read_from_stream(std::istream& stream,T& t)
    {
       stream.read(reinterpret_cast<char*>(&t),sizeof(T));
    }
 
    template <typename T>
-   inline void write_to_stream(std::ofstream& stream,const T& t) const
+   inline void write_to_stream(std::ostream& stream,const T& t) const
    {
       stream.write(reinterpret_cast<const char*>(&t),sizeof(T));
    }
 
-   inline void read_bfh(std::ifstream& stream, bitmap_file_header& bfh)
+   inline void read_bfh(std::istream& stream, bitmap_file_header& bfh)
    {
       read_from_stream(stream,bfh.type     );
       read_from_stream(stream,bfh.size     );
@@ -1409,7 +1414,7 @@ private:
       }
    }
 
-   inline void write_bfh(std::ofstream& stream, const bitmap_file_header& bfh) const
+   inline void write_bfh(std::ostream& stream, const bitmap_file_header& bfh) const
    {
       if (big_endian())
       {
@@ -1429,7 +1434,7 @@ private:
       }
    }
 
-   inline void read_bih(std::ifstream& stream,bitmap_information_header& bih)
+   inline void read_bih(std::istream& stream,bitmap_information_header& bih)
    {
       read_from_stream(stream,bih.size            );
       read_from_stream(stream,bih.width           );
@@ -1459,7 +1464,7 @@ private:
       }
    }
 
-   inline void write_bih(std::ofstream& stream, const bitmap_information_header& bih) const
+   inline void write_bih(std::ostream& stream, const bitmap_information_header& bih) const
    {
       if (big_endian())
       {
@@ -1515,6 +1520,13 @@ private:
          return;
       }
 
+      read_bitmap(stream);
+
+      stream.close();
+   }
+
+   bool read_bitmap(std::istream& stream)
+   {
       width_  = 0;
       height_ = 0;
 
@@ -1532,10 +1544,8 @@ private:
          bfh.clear();
          bih.clear();
 
-         stream.close();
-
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid type value " << bfh.type << " expected 19778." << std::endl;
-         return;
+         return false;
       }
 
       if (bih.bit_count != 24)
@@ -1543,11 +1553,9 @@ private:
          bfh.clear();
          bih.clear();
 
-         stream.close();
-
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid bit depth " << bih.bit_count << " expected 24." << std::endl;
 
-         return;
+         return false;
       }
 
       if (bih.size != bih.struct_size())
@@ -1555,11 +1563,9 @@ private:
          bfh.clear();
          bih.clear();
 
-         stream.close();
-
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Invalid BIH size " << bih.size << " expected " << bih.struct_size() << std::endl;
 
-         return;
+         return false;
       }
 
       width_  = bih.width;
@@ -1582,13 +1588,11 @@ private:
          bfh.clear();
          bih.clear();
 
-         stream.close();
-
          std::cerr << "bitmap_image::load_bitmap() ERROR: bitmap_image - Mismatch between logical and physical sizes of bitmap. " <<
                       "Logical: "  << bitmap_logical_size << " " <<
                       "Physical: " << bitmap_file_size    << std::endl;
 
-         return;
+         return false;
       }
 
       create_bitmap();
@@ -1600,6 +1604,8 @@ private:
          stream.read(reinterpret_cast<char*>(data_ptr), sizeof(char) * bytes_per_pixel_ * width_);
          stream.read(padding_data,padding);
       }
+
+      return true;
    }
 
    template <typename T>
