@@ -1503,7 +1503,7 @@ private:
    void create_bitmap()
    {
       row_increment_ = width_ * bytes_per_pixel_;
-      data_.resize(height_ * row_increment_);
+      data_.resize(static_cast<size_t>(height_) * static_cast<size_t>(row_increment_));
    }
 
    void load_bitmap()
